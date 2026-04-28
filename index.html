@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Symphony Kenya - Layer Review</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div id="app">
+    <aside id="sidebar">
+      <div id="sidebar-header">
+        <h1>Symphony Kenya</h1>
+        <p class="subtitle">Marine Layer Review</p>
+        <button id="edit-reviewer" class="text-link" type="button">Edit reviewer info</button>
+      </div>
+      <div id="group-selector"></div>
+      <div id="layer-search">
+        <input type="text" id="search-input" placeholder="Search layers...">
+      </div>
+      <ul id="layer-list"></ul>
+    </aside>
+
+    <main id="main-content">
+      <div id="welcome-screen">
+        <h2>Symphony Kenya Layer Review</h2>
+        <p>Select a layer from the sidebar to begin reviewing.</p>
+      </div>
+      <div id="layer-view" class="hidden">
+        <div id="map-viewer">
+          <div id="map-container">
+            <img id="map-image" alt="Layer map">
+          </div>
+          <div id="map-legend">
+            <h4 id="legend-title">Legend</h4>
+            <div class="legend-gradient" id="legend-gradient"></div>
+            <div class="legend-axis">
+              <span id="legend-min">0</span>
+              <span id="legend-max">100</span>
+            </div>
+            <div class="legend-nodata">
+              <span class="legend-swatch legend-swatch-nodata"></span>
+              <span>No data</span>
+            </div>
+          </div>
+          <div id="map-controls">
+            <button id="zoom-in" title="Zoom in">+</button>
+            <button id="zoom-out" title="Zoom out">&minus;</button>
+            <button id="zoom-reset" title="Reset view">Reset</button>
+          </div>
+        </div>
+        <div id="right-panel">
+          <section id="info-panel"></section>
+          <section id="review-section"></section>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div id="metadata-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="metadata-title">
+    <div class="modal-card modal-card-wide">
+      <div class="modal-header">
+        <h2 id="metadata-title"></h2>
+        <button type="button" id="metadata-close" class="modal-close" aria-label="Close">&times;</button>
+      </div>
+      <div id="metadata-modal-body"></div>
+    </div>
+  </div>
+
+  <div id="setup-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="setup-title">
+    <div class="modal-card">
+      <h2 id="setup-title">Welcome &mdash; please introduce yourself</h2>
+      <p class="modal-intro">
+        Please complete this form before reviewing the map layers. We use this to attribute your feedback and contact you only if needed.
+      </p>
+      <form id="setup-form" novalidate>
+        <div class="form-group">
+          <label for="setup-name">Name <span class="req">*</span></label>
+          <input type="text" id="setup-name" autocomplete="name" required>
+        </div>
+        <div class="form-group">
+          <label for="setup-email">Email <span class="req">*</span></label>
+          <input type="email" id="setup-email" autocomplete="email" required>
+        </div>
+        <div class="form-group">
+          <label for="setup-expertise">Area of expertise <span class="req">*</span></label>
+          <input type="text" id="setup-expertise" required placeholder="e.g. coral reef ecology, fisheries">
+        </div>
+        <label class="checkbox-row">
+          <input type="checkbox" id="setup-consent">
+          <span>I agree to be contacted if needed.</span>
+        </label>
+        <div id="setup-error" class="form-error"></div>
+        <div class="modal-actions">
+          <button type="button" id="setup-cancel" class="btn-secondary hidden">Cancel</button>
+          <button type="submit" class="btn-submit">Save and continue</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>

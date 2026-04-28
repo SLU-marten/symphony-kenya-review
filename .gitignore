@@ -1,0 +1,10 @@
+node_modules/
+dist/
+__pycache__/
+*.pyc
+scripts/_cache/
+public/data/maps/
+public/data/basemap.png
+.env.local
+.env.*.local
+.DS_Store

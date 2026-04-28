@@ -1,0 +1,22 @@
+{
+  "name": "symphony-kenya-review",
+  "version": "1.0.0",
+  "description": "Symphony Kenya - Marine Layer Review Platform (Mombasa 2026)",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "deploy": "vite build && gh-pages -d dist"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "gh-pages": "^6.3.0",
+    "vite": "^7.3.1"
+  },
+  "dependencies": {
+    "panzoom": "^9.4.3"
+  }
+}

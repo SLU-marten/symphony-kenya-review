@@ -1,0 +1,540 @@
+[
+  {
+    "theme": "ecosystem",
+    "band": 1,
+    "slug": "mangrove",
+    "title": "Mangrove",
+    "subtheme": "Habitat Tropical",
+    "description": "Stands of dense mangroves",
+    "providers": "Global Mangrove Watch, JAXA",
+    "latest_update": "2025-11-26",
+    "temporal_start": "1996-1-1",
+    "temporal_end": "2020-1-1",
+    "data_collected": "2025-11-26",
+    "method_summary": "For this analysis the 2020 (updated 2022) measurements of mangrove coverage from global mangrove watch were used. The GMW mangrove maps are originally derived from a combination of L-band SAR (JERS-1 SAR, ALOS PALSAR and ALOS-2 PALSAR-2) and optical (Landsat) satellite data. Mangrove coverage at 25m resolution was aggregated to proportion per 1km, a gaussian filter at 2km was applied to smoothen transitions. Resampling to final resolution was done using the bilinear sampling algorithm",
+    "known_limitations": "GMW mangrove maps are derived using mainly radar at 25m resolution. Additional data such as high resolution satellite imagery, land-cover data derived using local knowledge and other relevant data sources could improve results.",
+    "source_citation": "Bunting, Pete, Ake Rosenqvist, Lammert Hilarides, Richard M. Lucas, Nathan Thomas, Takeo Tadono, Thomas A. Worthington, Mark Spalding, Nicholas J. Murray, and Lisa-Maria Rebelo. 2022. 'Global Mangrove Extent Change 1996?2020: Global Mangrove Watch Version 3.0' Remote Sensing 14, no. 15: 3657.doi.org/10.3390/rs14153657 [accessed 2025 November 12]",
+    "lineage": null,
+    "links": [
+      "https://www.eorc.jaxa.jp/ALOS/en/dataset/gmw_e.htm"
+    ],
+    "contact": {
+      "name": "Martin Samnerud",
+      "email": "Martin.Samnerud@sgu.se",
+      "phone": null,
+      "org": "Swedish Geological Survey"
+    },
+    "map_file": "data/maps/ecosystem/mangrove.png"
+  },
+  {
+    "theme": "ecosystem",
+    "band": 2,
+    "slug": "abyss-hard",
+    "title": "Abyss hard",
+    "subtheme": "Habitat Oceanic seafloor",
+    "description": "Deep sea hard surfaces",
+    "providers": "GEBCO, dbSEABED",
+    "latest_update": "2025-12-23",
+    "temporal_start": "2000-01-01",
+    "temporal_end": "2000-01-01",
+    "data_collected": "2000-01-01",
+    "method_summary": "Seafloor models of rock and gravel developed by Jenkins, C.J. & dbSEABED Contributors (2025) were combined to create a hard bottom proportion. Then hard bottoms were mapped within Abyssal plain depth zone (1000-7500 m) using gebco 2025 data.",
+    "known_limitations": "The underlying substrate and bathymetry models are uncertain in most areas with a course resolution of about 11km. Direct measurements (e.g. seabed surveys) are required to increase the quality.",
+    "source_citation": "GEBCO Compilation Group (2025) GEBCO 2025 Grid (doi:10.5285/ 37c52e96-24ea-67ce-e063-7086abc05f29). Available from: https://www.gebco.net/data-products/gridded-bathymetry-data. Jenkins, C.J. & dbSEABED Contributors (2025). Global seafloor sediment texture mappings, 0.1° grid (version 2025-12) [Data set]. HUB Ocean. doi: 10.82510/ab08-yy59 and Jenkins, C.J. & dbSEABED Contributors (2025). Global seafloor rock presence mapping, 0.1° grid (version 2025-12) [Data set]. HUB Ocean. doi:10.82510/5xxh-vs19.",
+    "lineage": null,
+    "links": [
+      "https://app.hubocean.earth/catalog",
+      "https://www.gebco.net/data-products/gridded-bathymetry-data"
+    ],
+    "contact": {
+      "name": "Martin Samnerud",
+      "email": "Martin.Samnerud@sgu.se",
+      "phone": null,
+      "org": "Swedish Geological Survey"
+    },
+    "map_file": "data/maps/ecosystem/abyss-hard.png"
+  },
+  {
+    "theme": "ecosystem",
+    "band": 3,
+    "slug": "abyss-soft",
+    "title": "Abyss soft",
+    "subtheme": "Habitat Oceanic seafloor",
+    "description": "Deep sea soft surfaces",
+    "providers": "GEBCO, dbSEABED",
+    "latest_update": "2026-2-6",
+    "temporal_start": "2000-01-01",
+    "temporal_end": "2000-01-01",
+    "data_collected": "2000-01-01",
+    "method_summary": "Seafloor models of mud and sandl developed by Jenkins, C.J. & dbSEABED Contributors (2025) were combined to create a soft bottom proportion. Then soft bottoms were mapped within Abyssal plain depth zone (1000-7500 m) using gebco 2025 data.",
+    "known_limitations": "The underlying substrate and bathymetry models are uncertain in most areas with a course resolution of about 11km. Direct measurements (e.g. seabed surveys) are required to increase the quality.",
+    "source_citation": "GEBCO Compilation Group (2025) GEBCO 2025 Grid (doi:10.5285/ 37c52e96-24ea-67ce-e063-7086abc05f29). \n\nJenkins, C.J. & dbSEABED Contributors (2025). Global seafloor sediment texture mappings, 0.1° grid (version 2025-12) [Data set]. HUB Ocean. doi: 10.82510/ab08-yy59 and Jenkins, C.J. & dbSEABED Contributors (2025). Global seabed mud fraction (%, particles <63 micrometers), 0.1° grid (version 2025-12) [Data set]. HUB Ocean. doi:10.82510/5xxh-vs19.\n\nJenkins, C.J. & dbSEABED Contributors (2025). Global seafloor sediment texture mappings, 0.1° grid (version 2025-12) [Data set]. HUB Ocean. doi: 10.82510/ab08-yy59 and Jenkins, C.J. & dbSEABED Contributors (2025). Global seabed sand fraction (%, particles <63 micrometers), 0.1° grid (version 2025-12) [Data set]. HUB Ocean. doi:10.82510/5xxh-vs19.",
+    "lineage": null,
+    "links": [
+      "https://app.hubocean.earth/catalog",
+      "https://www.gebco.net/data-products/gridded-bathymetry-data"
+    ],
+    "contact": {
+      "name": "Martin Samnerud",
+      "email": "Martin.Samnerud@sgu.se",
+      "phone": null,
+      "org": "Swedish Geological Survey"
+    },
+    "map_file": "data/maps/ecosystem/abyss-soft.png"
+  },
+  {
+    "theme": "ecosystem",
+    "band": 4,
+    "slug": "slope-hard",
+    "title": "Slope hard",
+    "subtheme": "Habitat Oceanic pelagic",
+    "description": "Rock and stone along continental slope",
+    "providers": "GEBCO, dbSEABED",
+    "latest_update": "2026-2-9",
+    "temporal_start": "2000-01-01",
+    "temporal_end": "2000-01-01",
+    "data_collected": "2000-01-01",
+    "method_summary": "Seafloor models of rock and gravel developed by Jenkins, C.J. & dbSEABED Contributors (2025) were combined to create a hard bottom proportion. Then hard bottoms were mapped within Abyssal plain depth zone (200-1000 m) using gebco 2025 data.",
+    "known_limitations": "The underlying substrate and bathymetry models are uncertain in most areas with a course resolution of about 11km. Direct measurements (e.g. seabed surveys) are required to increase the quality.",
+    "source_citation": "GEBCO Compilation Group (2025) GEBCO 2025 Grid (doi:10.5285/ 37c52e96-24ea-67ce-e063-7086abc05f29). \n\nJenkins, C.J. & dbSEABED Contributors (2025). Global seafloor sediment texture mappings, 0.1° grid (version 2025-12) [Data set]. HUB Ocean. doi: 10.82510/ab08-yy59 and Jenkins, C.J. & dbSEABED Contributors (2025). Global seafloor rock presence mapping, 0.1° grid (version 2025-12) [Data set]. HUB Ocean. doi:10.82510/5xxh-vs19. \n\nJenkins, C.J. & dbSEABED Contributors (2025). Global seafloor sediment texture mappings, 0.1° grid (version 2025-12) [Data set]. HUB Ocean. doi: 10.82510/ab08-yy59 and Jenkins, C.J. & dbSEABED Contributors (2025). Global seabed gravel fraction (%, particles <63 micrometers), 0.1° grid (version 2025-12) [Data set]. HUB Ocean. doi:10.82510/5xxh-vs19.",
+    "lineage": null,
+    "links": [
+      "https://app.hubocean.earth/catalog",
+      "https://www.gebco.net/data-products/gridded-bathymetry-data"
+    ],
+    "contact": {
+      "name": "Martin Samnerud",
+      "email": "Martin.Samnerud@sgu.se",
+      "phone": null,
+      "org": "Swedish Geological Survey"
+    },
+    "map_file": "data/maps/ecosystem/slope-hard.png"
+  },
+  {
+    "theme": "ecosystem",
+    "band": 5,
+    "slug": "slope-soft",
+    "title": "Slope soft",
+    "subtheme": "Habitat Oceanic seafloor",
+    "description": "Sand or mud along continental slope",
+    "providers": "GEBCO, dbSEABED",
+    "latest_update": "2026-2-9",
+    "temporal_start": "2000-01-01",
+    "temporal_end": "2000-01-01",
+    "data_collected": "2000-01-01",
+    "method_summary": "Seafloor models of mud and sandl developed by Jenkins, C.J. & dbSEABED Contributors (2025) were combined to create a soft bottom proportion. Then soft bottoms were mapped within Abyssal plain depth zone (200-1000 m) using gebco 2025 data.",
+    "known_limitations": "The underlying substrate and bathymetry models are uncertain in most areas with a course resolution of about 11km. Direct measurements (e.g. seabed surveys) are required to increase the quality.",
+    "source_citation": "GEBCO Compilation Group (2025) GEBCO 2025 Grid (doi:10.5285/ 37c52e96-24ea-67ce-e063-7086abc05f29). \n\nJenkins, C.J. & dbSEABED Contributors (2025). Global seafloor sediment texture mappings, 0.1° grid (version 2025-12) [Data set]. HUB Ocean. doi: 10.82510/ab08-yy59 and Jenkins, C.J. & dbSEABED Contributors (2025). Global seabed mud fraction (%, particles <63 micrometers), 0.1° grid (version 2025-12) [Data set]. HUB Ocean. doi:10.82510/5xxh-vs19.\n\nJenkins, C.J. & dbSEABED Contributors (2025). Global seafloor sediment texture mappings, 0.1° grid (version 2025-12) [Data set]. HUB Ocean. doi: 10.82510/ab08-yy59 and Jenkins, C.J. & dbSEABED Contributors (2025). Global seabed sand fraction (%, particles <63 micrometers), 0.1° grid (version 2025-12) [Data set]. HUB Ocean. doi:10.82510/5xxh-vs19.",
+    "lineage": null,
+    "links": [
+      "https://app.hubocean.earth/catalog",
+      "https://www.gebco.net/data-products/gridded-bathymetry-data"
+    ],
+    "contact": {
+      "name": "Martin Samnerud",
+      "email": "Martin.Samnerud@sgu.se",
+      "phone": null,
+      "org": "Swedish Geological Survey"
+    },
+    "map_file": "data/maps/ecosystem/slope-soft.png"
+  },
+  {
+    "theme": "ecosystem",
+    "band": 6,
+    "slug": "shelf-hard",
+    "title": "Shelf hard",
+    "subtheme": "Habitat Tropical env",
+    "description": "Deep rock, limestone (40-200 m depth)",
+    "providers": "GEBCO, dbSEABED, Copernicus",
+    "latest_update": "2026-2-11",
+    "temporal_start": "2000-01-01",
+    "temporal_end": "2000-01-01",
+    "data_collected": "2000-01-01",
+    "method_summary": "A seafloor substrate model, developed by C. Jenkins with regional support from S. Fennessy, was used, together with the dbSEABED database. Rock and gravel proportions were combined to create a hard bottom layer. The shelf zone was defined as 40-200 m using GEBCO 2025 data, and yearly average SST (Sea Surface Temperature) from Copernicus data was used to model the tropical zone with a linear ramp-up starting at 23 °C (e.g. trop zone = 0) ending at 25.5 °C (e.g. trop zone =1).",
+    "known_limitations": "The underlying substrate and bathymetry models are uncertain in most areas of the region.",
+    "source_citation": "European Union-Copernicus Marine Service. Global Ocean Physics Reanalysis\n\nGEBCO Compilation Group (2025) GEBCO 2025 Grid (doi:10.5285/ 37c52e96-24ea-67ce-e063-7086abc05f29). \n\nJenkins, C.J. & dbSEABED Contributors (2025). Global seafloor sediment texture mappings, 0.1° grid (version 2025-12) [Data set]. HUB Ocean. doi: 10.82510/ab08-yy59 and Jenkins, C.J. & dbSEABED Contributors (2025). Global seafloor rock presence mapping, 0.1° grid (version 2025-12) [Data set]. HUB Ocean. doi:10.82510/5xxh-vs19. \n\nJenkins, C.J. & dbSEABED Contributors (2025). Global seafloor sediment texture mappings, 0.1° grid (version 2025-12) [Data set]. HUB Ocean. doi: 10.82510/ab08-yy59 and Jenkins, C.J. & dbSEABED Contributors (2025). Global seabed gravel fraction (%, particles <63 micrometers), 0.1° grid (version 2025-12) [Data set]. HUB Ocean. doi:10.82510/5xxh-vs19.",
+    "lineage": null,
+    "links": [
+      "https://app.hubocean.earth/catalog",
+      "https://www.gebco.net/data-products/gridded-bathymetry-data"
+    ],
+    "contact": {
+      "name": "Martin Samnerud",
+      "email": "Martin.Samnerud@sgu.se",
+      "phone": null,
+      "org": "Swedish Geological Survey"
+    },
+    "map_file": "data/maps/ecosystem/shelf-hard.png"
+  },
+  {
+    "theme": "ecosystem",
+    "band": 7,
+    "slug": "shelf-soft",
+    "title": "Shelf soft",
+    "subtheme": "Habitat Tropical env",
+    "description": "Deep mud or sand bottom (40-200 m depth)",
+    "providers": "GEBCO, dbSEABED, Copernicus",
+    "latest_update": "2026-2-11",
+    "temporal_start": "2000-01-01",
+    "temporal_end": "2000-01-01",
+    "data_collected": "2000-01-01",
+    "method_summary": "A seafloor substrate model, developed by C. Jenkins with regional support from S. Fennessy, was used, together with the dbSEABED database. Sand-mud proportions were combined to create a soft bottom layer. The shelf zone was defined as 40-200 m using GEBCO 2025 data, and yearly average SST (Sea Surface Temperature) from Copernicus data was used to model the tropical zone with a linear ramp-up starting at 23 °C (e.g. trop zone = 0) ending at 25.5 °C (e.g. trop zone =1).",
+    "known_limitations": "The underlying substrate and bathymetry models are uncertain in most areas of the region.",
+    "source_citation": "European Union-Copernicus Marine Service. Global Ocean Physics Reanalysis\n\nGEBCO Compilation Group (2025) GEBCO 2025 Grid (doi:10.5285/ 37c52e96-24ea-67ce-e063-7086abc05f29). \n\nJenkins, C.J. & dbSEABED Contributors (2025). Global seafloor sediment texture mappings, 0.1° grid (version 2025-12) [Data set]. HUB Ocean. doi: 10.82510/ab08-yy59 and Jenkins, C.J. & dbSEABED Contributors (2025). Global seabed mud fraction (%, particles <63 micrometers), 0.1° grid (version 2025-12) [Data set]. HUB Ocean. doi:10.82510/5xxh-vs19.\n\nJenkins, C.J. & dbSEABED Contributors (2025). Global seafloor sediment texture mappings, 0.1° grid (version 2025-12) [Data set]. HUB Ocean. doi: 10.82510/ab08-yy59 and Jenkins, C.J. & dbSEABED Contributors (2025). Global seabed sand fraction (%, particles <63 micrometers), 0.1° grid (version 2025-12) [Data set]. HUB Ocean. doi:10.82510/5xxh-vs19.",
+    "lineage": null,
+    "links": [
+      "https://app.hubocean.earth/catalog",
+      "https://www.gebco.net/data-products/gridded-bathymetry-data"
+    ],
+    "contact": {
+      "name": "Martin Samnerud",
+      "email": "Martin.Samnerud@sgu.se",
+      "phone": null,
+      "org": "Swedish Geological Survey"
+    },
+    "map_file": "data/maps/ecosystem/shelf-soft.png"
+  },
+  {
+    "theme": "ecosystem",
+    "band": 8,
+    "slug": "shallow-hard",
+    "title": "Shallow hard",
+    "subtheme": "Habitat Tropical env",
+    "description": "Rock, limestone (<40 m depth)",
+    "providers": "GEBCO, dbSEABED, Copernicus",
+    "latest_update": "2026-2-11",
+    "temporal_start": "2000-01-01",
+    "temporal_end": "2000-01-01",
+    "data_collected": "2000-01-01",
+    "method_summary": "A seafloor substrate model, developed by C. Jenkins with regional support from S. Fennessy, was used, together with the dbSEABED database. Rock and gravel proportions were combined to create a hard bottom layer. The shallow zone was defined as 0-40 m using GEBCO 2025 data, and yearly average SST (Sea Surface Temperature) from Copernicus data was used to model the tropical zone with a linear ramp-up starting at 23 °C (e.g. trop zone = 0) ending at 25.5 °C (e.g. trop zone =1).",
+    "known_limitations": "The underlying substrate and bathymetry models are uncertain in most areas of the region.",
+    "source_citation": "European Union-Copernicus Marine Service. Global Ocean Physics Reanalysis\n\nGEBCO Compilation Group (2025) GEBCO 2025 Grid (doi:10.5285/ 37c52e96-24ea-67ce-e063-7086abc05f29). \n\nJenkins, C.J. & dbSEABED Contributors (2025). Global seafloor sediment texture mappings, 0.1° grid (version 2025-12) [Data set]. HUB Ocean. doi: 10.82510/ab08-yy59 and Jenkins, C.J. & dbSEABED Contributors (2025). Global seafloor rock presence mapping, 0.1° grid (version 2025-12) [Data set]. HUB Ocean. doi:10.82510/5xxh-vs19. \n\nJenkins, C.J. & dbSEABED Contributors (2025). Global seafloor sediment texture mappings, 0.1° grid (version 2025-12) [Data set]. HUB Ocean. doi: 10.82510/ab08-yy59 and Jenkins, C.J. & dbSEABED Contributors (2025). Global seabed gravel fraction (%, particles <63 micrometers), 0.1° grid (version 2025-12) [Data set]. HUB Ocean. doi:10.82510/5xxh-vs19.",
+    "lineage": null,
+    "links": [
+      "https://app.hubocean.earth/catalog",
+      "https://www.gebco.net/data-products/gridded-bathymetry-data"
+    ],
+    "contact": {
+      "name": "Martin Samnerud",
+      "email": "Martin.Samnerud@sgu.se",
+      "phone": null,
+      "org": "Swedish Geological Survey"
+    },
+    "map_file": "data/maps/ecosystem/shallow-hard.png"
+  },
+  {
+    "theme": "ecosystem",
+    "band": 9,
+    "slug": "shallow-soft",
+    "title": "Shallow soft",
+    "subtheme": "Habitat Tropical env",
+    "description": "Mud or sand bottom (<40 m depth)",
+    "providers": "GEBCO, dbSEABED, Copernicus",
+    "latest_update": "2026-2-11",
+    "temporal_start": "2000-01-01",
+    "temporal_end": "2000-01-01",
+    "data_collected": "2000-01-01",
+    "method_summary": "A seafloor substrate model, developed by C. Jenkins with regional support from S. Fennessy, was used, together with the dbSEABED database. Sand-mud proportions were combined to create a soft bottom layer. The shallow zone was defined as 0-40 m using GEBCO 2025 data, and yearly average SST (Sea Surface Temperature) from Copernicus data was used to model the tropical zone with a linear ramp-up starting at 23 °C (e.g. trop zone = 0) ending at 25.5 °C (e.g. trop zone =1).",
+    "known_limitations": "The underlying substrate and bathymetry models are uncertain in most areas of the region.",
+    "source_citation": "European Union-Copernicus Marine Service. Global Ocean Physics Reanalysis\n\nGEBCO Compilation Group (2025) GEBCO 2025 Grid (doi:10.5285/ 37c52e96-24ea-67ce-e063-7086abc05f29). \n\nJenkins, C.J. & dbSEABED Contributors (2025). Global seafloor sediment texture mappings, 0.1° grid (version 2025-12) [Data set]. HUB Ocean. doi: 10.82510/ab08-yy59 and Jenkins, C.J. & dbSEABED Contributors (2025). Global seabed mud fraction (%, particles <63 micrometers), 0.1° grid (version 2025-12) [Data set]. HUB Ocean. doi:10.82510/5xxh-vs19.\n\nJenkins, C.J. & dbSEABED Contributors (2025). Global seafloor sediment texture mappings, 0.1° grid (version 2025-12) [Data set]. HUB Ocean. doi: 10.82510/ab08-yy59 and Jenkins, C.J. & dbSEABED Contributors (2025). Global seabed sand fraction (%, particles <63 micrometers), 0.1° grid (version 2025-12) [Data set]. HUB Ocean. doi:10.82510/5xxh-vs19.",
+    "lineage": null,
+    "links": [
+      "https://app.hubocean.earth/catalog",
+      "https://www.gebco.net/data-products/gridded-bathymetry-data"
+    ],
+    "contact": {
+      "name": "Martin Samnerud",
+      "email": "Martin.Samnerud@sgu.se",
+      "phone": null,
+      "org": "Swedish Geological Survey"
+    },
+    "map_file": "data/maps/ecosystem/shallow-soft.png"
+  },
+  {
+    "theme": "ecosystem",
+    "band": 10,
+    "slug": "shore",
+    "title": "Shore",
+    "subtheme": null,
+    "description": null,
+    "providers": null,
+    "latest_update": "2000-01-01",
+    "temporal_start": "2000-01-01",
+    "temporal_end": "2000-01-01",
+    "data_collected": "2000-01-01",
+    "method_summary": null,
+    "known_limitations": null,
+    "source_citation": null,
+    "lineage": null,
+    "links": [],
+    "contact": {
+      "name": null,
+      "email": null,
+      "phone": null,
+      "org": null
+    },
+    "map_file": "data/maps/ecosystem/shore.png"
+  },
+  {
+    "theme": "ecosystem",
+    "band": 11,
+    "slug": "sea-birds",
+    "title": "Sea birds",
+    "subtheme": null,
+    "description": null,
+    "providers": null,
+    "latest_update": "1999-1-1",
+    "temporal_start": "2000-01-01",
+    "temporal_end": "2000-01-01",
+    "data_collected": "2000-01-01",
+    "method_summary": null,
+    "known_limitations": null,
+    "source_citation": null,
+    "lineage": null,
+    "links": [],
+    "contact": {
+      "name": null,
+      "email": null,
+      "phone": null,
+      "org": null
+    },
+    "map_file": "data/maps/ecosystem/sea-birds.png"
+  },
+  {
+    "theme": "ecosystem",
+    "band": 12,
+    "slug": "upwelling-pelagic",
+    "title": "Upwelling pelagic",
+    "subtheme": null,
+    "description": null,
+    "providers": null,
+    "latest_update": "2000-01-01",
+    "temporal_start": "2000-01-01",
+    "temporal_end": "2000-01-01",
+    "data_collected": "2000-01-01",
+    "method_summary": null,
+    "known_limitations": null,
+    "source_citation": null,
+    "lineage": null,
+    "links": [],
+    "contact": {
+      "name": null,
+      "email": null,
+      "phone": null,
+      "org": null
+    },
+    "map_file": "data/maps/ecosystem/upwelling-pelagic.png"
+  },
+  {
+    "theme": "pressure",
+    "band": 1,
+    "slug": "plastic-litter",
+    "title": "Plastic litter",
+    "subtheme": "Litter",
+    "description": "Macroplastic pollution from waste (plastic objects >5 mm), projected 2025",
+    "providers": "Kaandorp MLA, Lobelle D, Kehl C, Dijkstra HA, van Sebille E",
+    "latest_update": "2025-11-26",
+    "temporal_start": "2025-1-1",
+    "temporal_end": "2025-12-31",
+    "data_collected": "2025-11-12",
+    "method_summary": "A new global model of plastic pollution in the oceans and coastline, available as 60-km hexagon grids, was adjusted to 250m, 500m or 1km grid. Data was available for a range of particle sizes, as particle mass or concentration and with predictions from years 2015, 2020 and 2025. For the WIO Symphony model, total concentration of particles larger than 5 mm from the 2020 prediction was used. The data was split up in two ways, the shore prediction, and the pelagic data (divided into 0-5 m (surface), 5-50 m, 50-500 m and 500 m-inf depth layers). The interpolation for each individual layer was made using the centre points of the hexagon grids, applying Inverse Distance Weighting. Shoreline plastic: The interpolated plastic shore data model was multiplied with shoreline proportion per 1-km, hence assuming more complex shorelines result in a higher pressure from plastic pollution within a 1-km area. In addition, a 2-km Gaussian filter was run and combined with this data, assuming plastic has a local spread into the nearby environment. Finally, the data was normalized to 0-100 using the maximum value. Pelagic plastic: The interpolated concentrations of plastic particles for each depth layer where combined using the average value in each cell. The data were then normalized to 0-100 using the global maximum value. Combined product: The two normalized layers were combined into one using the maximum value in each cell.",
+    "known_limitations": "The plastic layer is limited by the resolution and accuracy of a global model. To better represent the coastal area and trace the local sources of plastic pollution, additional data such as high resolution, satellite imagery, land-cover data, census data, and other relevant data sources would be needed.",
+    "source_citation": "Kaandorp MLA, Lobelle D, Kehl C, Dijkstra HA, van Sebille E. The global marine plastic mass budget is dominated by large long-lived objects [dataset]. 2023 [accessed 2025 November 12]. In press, Supplementary Material.",
+    "lineage": null,
+    "links": [
+      "https://github.com/OceanParcels/GlobalMassBudget/tree/main/00_resulting_maps"
+    ],
+    "contact": {
+      "name": "Martin Samnerud",
+      "email": "Martin.Samnerud@sgu.se",
+      "phone": null,
+      "org": "Swedish Geological Survey"
+    },
+    "map_file": "data/maps/pressure/plastic-litter.png"
+  },
+  {
+    "theme": "pressure",
+    "band": 2,
+    "slug": "ship-pollution",
+    "title": "Ship pollution",
+    "subtheme": "Shipping",
+    "description": "Operational spills, leaks and waste",
+    "providers": "Global Fishing Watch",
+    "latest_update": "2025-12-05",
+    "temporal_start": "2024-1-1",
+    "temporal_end": "2025-1-1",
+    "data_collected": "2025-12-5",
+    "method_summary": "Ship pollution was estimated using global AIS data 2024 provided by Global fishing watch. The data is summarized in hours / year spent by any vessel type at a given position at a 50 arc second resolution (1111m).",
+    "known_limitations": "Calculations are not taking ship speed into account. Also the estimation does not take into account the proportion of the different vessel types that may be overrepresented in certain areas, assuming larger vessels pollute more.",
+    "source_citation": "Global Fishing Watch. [2024], updated daily. [AIS Vessel Presence, Version 3],",
+    "lineage": null,
+    "links": [
+      "https://globalfishingwatch.org/our-apis/"
+    ],
+    "contact": {
+      "name": "Martin Samnerud",
+      "email": "Martin.Samnerud@sgu.se",
+      "phone": null,
+      "org": "Swedish Geological Survey"
+    },
+    "map_file": "data/maps/pressure/ship-pollution.png"
+  },
+  {
+    "theme": "pressure",
+    "band": 3,
+    "slug": "boating",
+    "title": "Boating",
+    "subtheme": "Recreation",
+    "description": "Recreational boating activities",
+    "providers": "Global Fishing Watch",
+    "latest_update": "2025-12-05",
+    "temporal_start": "2024-1-1",
+    "temporal_end": "2025-1-1",
+    "data_collected": "2000-12-5",
+    "method_summary": "Recreational boating was estimated using global AIS data 2024 provided by Global fishing watch. The data is summarized in hours / year spent by passenger boats at a given position at a 50 arc second resolution (1111m).",
+    "known_limitations": "The estimation does not take into account the size of the passenger boat which could be a cruise liner or ferry. Assuming a larger boat has a higher impact",
+    "source_citation": "Global Fishing Watch. [2024], updated daily. [AIS Vessel Presence, Version 3]",
+    "lineage": null,
+    "links": [
+      "https://globalfishingwatch.org/our-apis/"
+    ],
+    "contact": {
+      "name": "Martin Samnerud",
+      "email": "Martin.Samnerud@sgu.se",
+      "phone": null,
+      "org": "Swedish Geological Survey"
+    },
+    "map_file": "data/maps/pressure/boating.png"
+  },
+  {
+    "theme": "pressure",
+    "band": 4,
+    "slug": "demersal-trawl",
+    "title": "Demersal trawl",
+    "subtheme": "Fishing",
+    "description": "Commercial fishing with bottom-scraping trawl",
+    "providers": "Global Fishing Watch",
+    "latest_update": "2026-2-17",
+    "temporal_start": "2015-1-1",
+    "temporal_end": "2025-1-1",
+    "data_collected": "2026-2-17",
+    "method_summary": null,
+    "known_limitations": "The Global Fishing Watch data is based on advanced algorithms to estimate fishing effort. However, there is a risk that vessels are incorrectly identified as fishing in the algorithm. Further, these data may not identify unregistered fishing boats.",
+    "source_citation": "Global Fishing Watch. [2025], updated daily. [Global Fishing Effort, Version 3]",
+    "lineage": null,
+    "links": [
+      "https://globalfishingwatch.org/our-apis/"
+    ],
+    "contact": {
+      "name": "Martin Samnerud",
+      "email": "Martin.Samnerud@sgu.se",
+      "phone": null,
+      "org": "Swedish Geological Survey"
+    },
+    "map_file": "data/maps/pressure/demersal-trawl.png"
+  },
+  {
+    "theme": "pressure",
+    "band": 5,
+    "slug": "demersal-gillnet",
+    "title": "Demersal gillnet",
+    "subtheme": "Fishing",
+    "description": "Commercial fishing using gillnets close to the bottom",
+    "providers": "Global Fishing Watch",
+    "latest_update": "2026-2-17",
+    "temporal_start": "2015-1-1",
+    "temporal_end": "2000-01-01",
+    "data_collected": "2026-2-17",
+    "method_summary": null,
+    "known_limitations": "The Global Fishing Watch data is based on advanced algorithms to estimate fishing effort. However, there is a risk that vessels are incorrectly identified as fishing in the algorithm. Further, these data may not identify unregistered fishing boats.",
+    "source_citation": "Global Fishing Watch. [2025], updated daily. [Global Fishing Effort, Version 3]",
+    "lineage": null,
+    "links": [
+      "https://globalfishingwatch.org/our-apis/"
+    ],
+    "contact": {
+      "name": "Martin Samnerud",
+      "email": "Martin.Samnerud@sgu.se",
+      "phone": null,
+      "org": "Swedish Geological Survey"
+    },
+    "map_file": "data/maps/pressure/demersal-gillnet.png"
+  },
+  {
+    "theme": "pressure",
+    "band": 6,
+    "slug": "floating-longline",
+    "title": "Floating longline",
+    "subtheme": "Fishing",
+    "description": "Pelagic fishing with long-line baited hooks (floating)",
+    "providers": "Global Fishing Watch",
+    "latest_update": "2026-2-17",
+    "temporal_start": "2015-1-1",
+    "temporal_end": "2025-1-1",
+    "data_collected": "2026-2-17",
+    "method_summary": null,
+    "known_limitations": "The Global Fishing Watch data is based on advanced algorithms to estimate fishing effort. However, there is a risk that vessels are incorrectly identified as fishing in the algorithm. Further, these data may not identify unregistered fishing boats.",
+    "source_citation": "Global Fishing Watch. [2025], updated daily. [Global Fishing Effort, Version 3]",
+    "lineage": null,
+    "links": [
+      "https://globalfishingwatch.org/our-apis/"
+    ],
+    "contact": {
+      "name": "Martin Samnerud",
+      "email": "Martin.Samnerud@sgu.se",
+      "phone": null,
+      "org": "Swedish Geological Survey"
+    },
+    "map_file": "data/maps/pressure/floating-longline.png"
+  },
+  {
+    "theme": "pressure",
+    "band": 7,
+    "slug": "ocean-acidification",
+    "title": "Ocean acidification",
+    "subtheme": null,
+    "description": null,
+    "providers": null,
+    "latest_update": "2000-01-01",
+    "temporal_start": "2000-01-01",
+    "temporal_end": "2000-01-01",
+    "data_collected": "2000-01-01",
+    "method_summary": null,
+    "known_limitations": null,
+    "source_citation": null,
+    "lineage": null,
+    "links": [],
+    "contact": {
+      "name": null,
+      "email": null,
+      "phone": null,
+      "org": null
+    },
+    "map_file": "data/maps/pressure/ocean-acidification.png"
+  },
+  {
+    "theme": "pressure",
+    "band": 8,
+    "slug": "sea-level-rise",
+    "title": "Sea level rise",
+    "subtheme": null,
+    "description": "Rate of sea level rise",
+    "providers": "Copernicus",
+    "latest_update": "2000-01-01",
+    "temporal_start": "2000-01-01",
+    "temporal_end": "2000-01-01",
+    "data_collected": "2000-01-01",
+    "method_summary": null,
+    "known_limitations": null,
+    "source_citation": null,
+    "lineage": null,
+    "links": [],
+    "contact": {
+      "name": null,
+      "email": null,
+      "phone": null,
+      "org": null
+    },
+    "map_file": "data/maps/pressure/sea-level-rise.png"
+  }
+]
