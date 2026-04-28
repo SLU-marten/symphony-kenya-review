@@ -72,6 +72,7 @@ THEMES = {
 
 VALUE_RANGE = (0.0, 100.0)
 PLACEHOLDER_VALUES = {"", "n/a", "na", "later", "add later", "v"}
+DATE_RE = re.compile(r"^(\d{4})-(\d{1,2})-(\d{1,2})$")
 
 
 def slugify(title: str) -> str:
@@ -87,6 +88,16 @@ def normalize_value(s: str | None) -> str | None:
     if s.lower() in PLACEHOLDER_VALUES:
         return None
     return s
+
+
+def normalize_date(s: str | None) -> str | None:
+    if s is None:
+        return None
+    m = DATE_RE.match(s)
+    if not m:
+        return s
+    y, mo, d = m.groups()
+    return f"{y}-{int(mo):02d}-{int(d):02d}"
 
 
 def split_links(s: str | None) -> list[str]:
@@ -111,10 +122,10 @@ def build_layer_record(row: dict, map_relpath: str) -> dict:
         "subtheme": normalize_value(row.get("subtheme")),
         "description": normalize_value(row.get("description")),
         "providers": normalize_value(row.get("data_providers")),
-        "latest_update": normalize_value(row.get("latest_update")),
-        "temporal_start": normalize_value(row.get("temporal_start")),
-        "temporal_end": normalize_value(row.get("temporal_end")),
-        "data_collected": normalize_value(row.get("data_collected")),
+        "latest_update": normalize_date(normalize_value(row.get("latest_update"))),
+        "temporal_start": normalize_date(normalize_value(row.get("temporal_start"))),
+        "temporal_end": normalize_date(normalize_value(row.get("temporal_end"))),
+        "data_collected": normalize_date(normalize_value(row.get("data_collected"))),
         "method_summary": normalize_value(row.get("method_summary")),
         "known_limitations": normalize_value(row.get("known_limitations")),
         "source_citation": normalize_value(row.get("source_citation")),
