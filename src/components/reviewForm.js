@@ -15,7 +15,7 @@ export function initReviewForm() {
   const section = document.getElementById('review-section');
 
   section.innerHTML = `
-    <h3>Expert Review</h3>
+    <h3 class="panel-heading">Expert Review</h3>
     <p class="review-instructions">${REVIEW_INSTRUCTIONS}</p>
 
     <div class="form-group">

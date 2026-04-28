@@ -435,12 +435,50 @@ body {
   background: var(--bg-primary);
   max-width: 520px;
   min-width: 380px;
+  padding: 12px;
+  gap: 12px;
 }
 
-#info-panel {
-  padding: 20px;
+#info-panel,
+#review-section {
   background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px;
+}
+
+#review-section {
+  background: rgba(28,140,158,0.05);
+  border-color: rgba(28,140,158,0.35);
+  flex: 0 0 auto;
+}
+
+.panel-heading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 14px;
+  padding-bottom: 8px;
   border-bottom: 1px solid var(--border);
+  color: var(--text-secondary);
+}
+
+.panel-heading::before {
+  content: '';
+  display: inline-block;
+  width: 3px;
+  height: 14px;
+  background: currentColor;
+  border-radius: 2px;
+}
+
+#review-section .panel-heading {
+  color: var(--accent);
+  border-bottom-color: rgba(28,140,158,0.3);
 }
 
 #info-panel h2 {
@@ -587,28 +625,19 @@ body {
 }
 
 /* === Review section === */
-#review-section {
-  padding: 20px;
-  flex: 1;
-}
-
-#review-section h3 {
-  font-size: 16px;
-  font-weight: 600;
-  margin-bottom: 12px;
-  color: var(--text-primary);
-}
-
 .review-instructions {
   font-size: 12px;
   line-height: 1.6;
   color: var(--text-secondary);
   margin-bottom: 20px;
-  padding: 12px;
-  background: rgba(28,140,158,0.06);
+  padding: 12px 14px;
+  background: var(--bg-card);
   border-radius: var(--radius);
   border-left: 3px solid var(--accent);
-  white-space: pre-line;
+}
+
+.review-instructions strong {
+  color: var(--text-primary);
 }
 
 .form-group {

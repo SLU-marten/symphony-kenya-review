@@ -31,6 +31,7 @@ export function showInfoPanel(key) {
     layer.theme === 'pressure' ? 'theme-badge-pressure' : 'theme-badge-ecosystem';
 
   panel.innerHTML = `
+    <h3 class="panel-heading">Metadata</h3>
     <h2>${escapeHtml(layer.title)}</h2>
     <p class="theme-line">
       <span class="theme-badge ${themeBadgeClass}">${themeLabel}</span>
