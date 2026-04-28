@@ -328,7 +328,8 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--json-only", action="store_true", help="Only rebuild layers.json")
     p.add_argument("--maps-only", action="store_true", help="Only rebuild PNGs (bands + basemap)")
     p.add_argument("--basemap-only", action="store_true", help="Only rebuild basemap.png")
-    p.add_argument("--full-res", action="store_true", help="Render at native 2541x1447 (default 2x downsample)")
+    p.add_argument("--low-res", action="store_true", help="Render at 2x downsampled (1270x723); default is native 2541x1447")
+    p.add_argument("--full-res", action="store_true", help="Deprecated alias; native is now the default")
     p.add_argument("--compress", action="store_true", help="Run pngquant on each band PNG (if installed)")
     return p.parse_args()
 
@@ -351,7 +352,7 @@ def main() -> int:
     if do_json:
         write_json(records, JSON_PATH)
 
-    downsample = 1 if args.full_res else 2
+    downsample = 2 if args.low_res else 1
 
     if do_basemap:
         print("Building land basemap...")

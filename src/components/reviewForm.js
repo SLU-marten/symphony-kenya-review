@@ -3,10 +3,7 @@ import { openSetupModal } from './setupModal.js';
 
 let currentKey = null;
 
-const REVIEW_INSTRUCTIONS = `Mark each layer with a flag based on your expert judgement.
-Red = the layer should be removed. Yellow = keep but flag as inaccurate.
-Green = the layer is sufficiently accurate. Briefly explain your assessment,
-especially for Yellow and Red flags.`;
+const REVIEW_INSTRUCTIONS = `Mark each layer based on your expert judgement: <strong>OK</strong> if the layer is sufficiently accurate to publish, <strong>Minor revision</strong> if it should be refined before publication, <strong>Major revision</strong> if substantial issues remain. Add a brief comment to justify Minor or Major revision.`;
 
 const FOCUS_OPTIONS = [
   { value: 'data_accuracy', label: 'Data accuracy' },
@@ -24,28 +21,25 @@ export function initReviewForm() {
     <div class="form-group">
       <label>Assessment <span class="req">*</span></label>
       <div class="flag-radio-group">
-        <label class="flag-radio flag-radio-green" title="Keep as-is">
+        <label class="flag-radio flag-radio-green" title="OK to publish as-is">
           <input type="radio" name="review-flag" value="green">
           <span class="flag-radio-label">
             <span class="flag-radio-dot flag-green"></span>
-            <span><strong>Green</strong></span>
-            <small>Keep</small>
+            <span>OK</span>
           </span>
         </label>
-        <label class="flag-radio flag-radio-yellow" title="Keep with caution">
+        <label class="flag-radio flag-radio-yellow" title="Keep, but should be refined before publication">
           <input type="radio" name="review-flag" value="yellow">
           <span class="flag-radio-label">
             <span class="flag-radio-dot flag-yellow"></span>
-            <span><strong>Yellow</strong></span>
-            <small>Caution</small>
+            <span>Minor revision</span>
           </span>
         </label>
-        <label class="flag-radio flag-radio-red" title="Remove">
+        <label class="flag-radio flag-radio-red" title="Substantial issues; should not be published as-is">
           <input type="radio" name="review-flag" value="red">
           <span class="flag-radio-label">
             <span class="flag-radio-dot flag-red"></span>
-            <span><strong>Red</strong></span>
-            <small>Remove</small>
+            <span>Major revision</span>
           </span>
         </label>
       </div>
