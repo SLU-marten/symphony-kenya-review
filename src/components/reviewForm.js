@@ -77,8 +77,8 @@ export function initReviewForm() {
         <label><input type="radio" name="better-data" value="yes"> Yes</label>
       </div>
       <div id="better-data-source" class="form-group conditional-field">
-        <label for="better-data-link">Add link or source</label>
-        <input type="text" id="better-data-link" placeholder="https:// or DOI / citation">
+        <label for="better-data-link">Add link, source or contact info</label>
+        <input type="text" id="better-data-link" placeholder="https:// or DOI / citation / email">
       </div>
     </div>
 
