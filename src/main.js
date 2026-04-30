@@ -5,6 +5,7 @@ import {
   getMapUrl,
   getLayersByTheme,
   setCurrentTheme,
+  getBounds,
 } from './services/dataService.js';
 import { initSidebar, setActiveLayer, refreshLayerList } from './components/sidebar.js';
 import { initMapViewer, showMap, setLegend } from './components/mapViewer.js';
@@ -18,7 +19,7 @@ import {
 
 async function init() {
   await loadLayerData();
-  initMapViewer();
+  initMapViewer(getBounds());
   initReviewForm();
   initSetupModal();
   initInfoPanel();

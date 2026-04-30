@@ -1,4 +1,5 @@
 let layers = [];
+let bounds = null;
 let layersByKey = new Map();
 let layersByTheme = { ecosystem: [], pressure: [] };
 let currentTheme = 'ecosystem';
@@ -10,7 +11,9 @@ const THEME_LABELS = {
 
 export async function loadLayerData() {
   const response = await fetch('./data/layers.json');
-  layers = await response.json();
+  const payload = await response.json();
+  layers = payload.layers;
+  bounds = payload.bounds;
   layersByKey.clear();
   layersByTheme.ecosystem = [];
   layersByTheme.pressure = [];
@@ -23,6 +26,10 @@ export async function loadLayerData() {
     }
   }
   return layers;
+}
+
+export function getBounds() {
+  return bounds;
 }
 
 export function getThemes() {

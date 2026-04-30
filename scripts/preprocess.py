@@ -2,7 +2,7 @@
 Preprocess the Mombasa 2026 multiband GeoTIFFs + metadata CSV into the
 shape consumed by the Symphony Kenya review web app:
 
-  public/data/layers.json
+  public/data/layers.json                 ({ bounds: [[s,w],[n,e]], layers: [...] })
   public/data/maps/ecosystem/<slug>.png   (12 PNGs, YlGn ramp)
   public/data/maps/pressure/<slug>.png    ( 8 PNGs, YlOrRd ramp)
 """
@@ -18,7 +18,6 @@ import re
 import shutil
 import subprocess
 import sys
-import urllib.request
 from pathlib import Path
 
 # Override PROJ_LIB/PROJ_DATA to rasterio's bundled proj_data BEFORE importing
@@ -36,9 +35,7 @@ if _rasterio_spec and _rasterio_spec.submodule_search_locations:
 
 import numpy as np
 import rasterio
-from rasterio.features import rasterize
-from rasterio.transform import Affine
-from rasterio.warp import transform_geom
+from rasterio.warp import transform_bounds
 from PIL import Image
 import matplotlib
 
@@ -48,14 +45,7 @@ DATA_DIR = PROJECT_ROOT.parent / "Layers_260427_250m"
 OUT_DATA_DIR = PROJECT_ROOT / "public" / "data"
 MAPS_DIR = OUT_DATA_DIR / "maps"
 JSON_PATH = OUT_DATA_DIR / "layers.json"
-BASEMAP_PATH = OUT_DATA_DIR / "basemap.png"
 CSV_PATH = DATA_DIR / "metadata_Layers_260427_250m.csv"
-
-NE_LAND_URL = "https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_10m_land.geojson"
-NE_LAND_CACHE = SCRIPT_DIR / "_cache" / "ne_10m_land.geojson"
-
-LAND_RGBA = (220, 224, 228, 255)
-COAST_RGBA = (110, 120, 128, 255)
 
 THEMES = {
     "ecosystem": {
@@ -224,96 +214,33 @@ def maybe_pngquant(out_path: Path) -> None:
     )
 
 
-def write_json(records: list[dict], out_path: Path) -> None:
+def write_json(payload: dict, out_path: Path) -> None:
     out_path.parent.mkdir(parents=True, exist_ok=True)
     with out_path.open("w", encoding="utf-8") as fh:
-        json.dump(records, fh, indent=2, ensure_ascii=False)
-    print(f"  wrote {out_path} ({len(records)} layers)")
-
-
-def fetch_ne_land() -> Path:
-    NE_LAND_CACHE.parent.mkdir(parents=True, exist_ok=True)
-    if not NE_LAND_CACHE.exists():
-        print(f"  downloading Natural Earth 10m land from {NE_LAND_URL}")
-        urllib.request.urlretrieve(NE_LAND_URL, NE_LAND_CACHE)
-        size_mb = NE_LAND_CACHE.stat().st_size / 1_048_576
-        print(f"  cached at {NE_LAND_CACHE} ({size_mb:.1f} MB)")
-    return NE_LAND_CACHE
+        json.dump(payload, fh, indent=2, ensure_ascii=False)
+    n = len(payload.get("layers", []))
+    b = payload.get("bounds")
+    print(f"  wrote {out_path} ({n} layers, bounds={b})")
 
 
 def reference_tif() -> Path:
     for cfg in THEMES.values():
         if cfg["tif"].exists():
             return cfg["tif"]
-    raise FileNotFoundError("No source TIFF found for basemap reference")
+    raise FileNotFoundError("No source TIFF found")
 
 
-def build_basemap(downsample: int = 2) -> None:
+def compute_bounds_latlon() -> list[list[float]]:
+    """Return [[south, west], [north, east]] in EPSG:4326 — the format Leaflet expects."""
     ref = reference_tif()
-    geo_path = fetch_ne_land()
-    with geo_path.open("r", encoding="utf-8") as fh:
-        geojson = json.load(fh)
-
     with rasterio.open(ref) as src:
-        src_crs = src.crs
-        src_transform = src.transform
-        height = src.height
-        width = src.width
-
-    if src_crs is None:
-        print("  ERROR: source TIFF has no CRS — cannot build basemap.", file=sys.stderr)
-        return
-
-    # Rasterize directly at downsampled resolution so the coastline stays a crisp 1 px line.
-    if downsample > 1:
-        target_transform = src_transform * Affine.scale(downsample)
-        target_height = height // downsample
-        target_width = width // downsample
-    else:
-        target_transform = src_transform
-        target_height = height
-        target_width = width
-
-    print(
-        f"  reprojecting {len(geojson['features'])} land features from EPSG:4326 -> {src_crs}"
-    )
-    geometries = []
-    for feat in geojson["features"]:
-        geom = feat.get("geometry")
-        if not geom:
-            continue
-        try:
-            reproj = transform_geom("EPSG:4326", src_crs, geom)
-        except Exception as e:
-            print(f"    [warn] skipping feature: {e}")
-            continue
-        geometries.append(reproj)
-
-    print(f"  rasterizing land mask -> {target_width}x{target_height}")
-    mask = rasterize(
-        [(g, 1) for g in geometries],
-        out_shape=(target_height, target_width),
-        transform=target_transform,
-        fill=0,
-        all_touched=False,
-        dtype=np.uint8,
-    ).astype(bool)
-
-    land_eroded = (
-        np.roll(mask, 1, axis=0)
-        & np.roll(mask, -1, axis=0)
-        & np.roll(mask, 1, axis=1)
-        & np.roll(mask, -1, axis=1)
-    )
-    coast = mask & ~land_eroded
-
-    rgba = np.zeros((target_height, target_width, 4), dtype=np.uint8)
-    rgba[mask] = LAND_RGBA
-    rgba[coast] = COAST_RGBA
-
-    BASEMAP_PATH.parent.mkdir(parents=True, exist_ok=True)
-    Image.fromarray(rgba, "RGBA").save(BASEMAP_PATH, "PNG", optimize=True)
-    print(f"  wrote {BASEMAP_PATH} ({target_width}x{target_height})")
+        if src.crs is None:
+            raise RuntimeError(f"{ref.name} has no CRS — cannot compute bounds")
+        # transform_bounds returns (west, south, east, north)
+        west, south, east, north = transform_bounds(
+            src.crs, "EPSG:4326", *src.bounds, densify_pts=21
+        )
+    return [[south, west], [north, east]]
 
 
 def render_theme(theme_key: str, records: list[dict], downsample: int, compress: bool, only_band: int | None) -> None:
@@ -337,8 +264,7 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--theme", choices=list(THEMES.keys()), help="Restrict to one theme")
     p.add_argument("--band", type=int, help="Restrict to one band index (1-based)")
     p.add_argument("--json-only", action="store_true", help="Only rebuild layers.json")
-    p.add_argument("--maps-only", action="store_true", help="Only rebuild PNGs (bands + basemap)")
-    p.add_argument("--basemap-only", action="store_true", help="Only rebuild basemap.png")
+    p.add_argument("--maps-only", action="store_true", help="Only rebuild layer PNGs")
     p.add_argument("--low-res", action="store_true", help="Render at 2x downsampled (1270x723); default is native 2541x1447")
     p.add_argument("--full-res", action="store_true", help="Deprecated alias; native is now the default")
     p.add_argument("--compress", action="store_true", help="Run pngquant on each band PNG (if installed)")
@@ -348,9 +274,8 @@ def parse_args() -> argparse.Namespace:
 def main() -> int:
     args = parse_args()
 
-    do_json = not args.maps_only and not args.basemap_only
-    do_basemap = not args.json_only
-    do_bands = not args.json_only and not args.basemap_only
+    do_json = not args.maps_only
+    do_bands = not args.json_only
 
     if not CSV_PATH.exists():
         print(f"ERROR: CSV not found: {CSV_PATH}", file=sys.stderr)
@@ -361,18 +286,15 @@ def main() -> int:
     print(f"  parsed {len(records)} rows ({sum(1 for r in records if r['theme']=='ecosystem')} ecosystem + {sum(1 for r in records if r['theme']=='pressure')} pressure)")
 
     if do_json:
-        write_json(records, JSON_PATH)
+        print("Computing lat/lon bounds from reference TIFF...")
+        try:
+            bounds = compute_bounds_latlon()
+        except Exception as e:
+            print(f"  ERROR computing bounds: {e}", file=sys.stderr)
+            return 1
+        write_json({"bounds": bounds, "layers": records}, JSON_PATH)
 
     downsample = 2 if args.low_res else 1
-
-    if do_basemap:
-        print("Building land basemap...")
-        try:
-            build_basemap(downsample=downsample)
-        except Exception as e:
-            print(f"  ERROR building basemap: {e}", file=sys.stderr)
-            if args.basemap_only:
-                return 1
 
     if do_bands:
         themes_to_run = [args.theme] if args.theme else list(THEMES.keys())

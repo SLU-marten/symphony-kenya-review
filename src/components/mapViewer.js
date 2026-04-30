@@ -1,40 +1,55 @@
-import panzoom from 'panzoom';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
 
-let panzoomInstance = null;
+let map = null;
+let imageOverlay = null;
+let dataBounds = null;
 
-export function initMapViewer() {
-  const container = document.getElementById('map-container');
-  const img = document.getElementById('map-image');
+const FIT_PADDING = [24, 24];
 
-  panzoomInstance = panzoom(img, {
-    maxZoom: 8,
-    minZoom: 0.3,
-    smoothScroll: false,
-    bounds: true,
-    boundsPadding: 0.1,
-    zoomDoubleClickSpeed: 1,
+export function initMapViewer(boundsLatLng) {
+  dataBounds = L.latLngBounds(boundsLatLng);
+
+  map = L.map('map-container', {
+    zoomControl: false,
+    attributionControl: true,
+    minZoom: 3,
+    maxZoom: 16,
+    worldCopyJump: false,
   });
 
-  document.getElementById('zoom-in').addEventListener('click', () => {
-    const cx = container.clientWidth / 2;
-    const cy = container.clientHeight / 2;
-    panzoomInstance.smoothZoom(cx, cy, 1.5);
-  });
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+    attribution:
+      '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+    subdomains: 'abcd',
+    maxZoom: 19,
+  }).addTo(map);
 
-  document.getElementById('zoom-out').addEventListener('click', () => {
-    const cx = container.clientWidth / 2;
-    const cy = container.clientHeight / 2;
-    panzoomInstance.smoothZoom(cx, cy, 0.67);
-  });
+  map.fitBounds(dataBounds, { padding: FIT_PADDING });
 
-  document.getElementById('zoom-reset').addEventListener('click', resetView);
+  document.getElementById('zoom-in').addEventListener('click', () => map.zoomIn());
+  document.getElementById('zoom-out').addEventListener('click', () => map.zoomOut());
+  document.getElementById('zoom-reset').addEventListener('click', () => {
+    map.fitBounds(dataBounds, { padding: FIT_PADDING });
+  });
 }
 
 export function showMap(mapUrl) {
-  const img = document.getElementById('map-image');
-  img.style.backgroundImage = "url('./data/basemap.png')";
-  img.src = mapUrl;
-  img.onload = () => resetView();
+  if (!map) return;
+  // Container may have been display:none on init — recompute size before we do anything else.
+  map.invalidateSize();
+
+  if (imageOverlay) {
+    imageOverlay.remove();
+    imageOverlay = null;
+  }
+  imageOverlay = L.imageOverlay(mapUrl, dataBounds, {
+    opacity: 1,
+    interactive: false,
+    className: 'data-overlay',
+  }).addTo(map);
+
+  map.fitBounds(dataBounds, { padding: FIT_PADDING });
 }
 
 export function setLegend(layer) {
@@ -44,21 +59,4 @@ export function setLegend(layer) {
   titleEl.textContent = `${layer.title} — ${suffix}`;
   gradientEl.classList.remove('ramp-ecosystem', 'ramp-pressure');
   gradientEl.classList.add(layer.theme === 'pressure' ? 'ramp-pressure' : 'ramp-ecosystem');
-}
-
-function resetView() {
-  if (!panzoomInstance) return;
-  const container = document.getElementById('map-container');
-  const img = document.getElementById('map-image');
-  if (!img.naturalWidth) return;
-
-  const scaleX = container.clientWidth / img.naturalWidth;
-  const scaleY = container.clientHeight / img.naturalHeight;
-  const scale = Math.min(scaleX, scaleY, 1);
-
-  const offsetX = (container.clientWidth - img.naturalWidth * scale) / 2;
-  const offsetY = (container.clientHeight - img.naturalHeight * scale) / 2;
-
-  panzoomInstance.zoomAbs(0, 0, scale);
-  panzoomInstance.moveTo(offsetX, offsetY);
 }
