@@ -16,6 +16,7 @@ import {
   openSetupModal,
   hasReviewerInfo,
 } from './components/setupModal.js';
+import { initMobileLayout, closeSidebarDrawer } from './components/mobileLayout.js';
 
 async function init() {
   await loadLayerData();
@@ -24,6 +25,7 @@ async function init() {
   initSetupModal();
   initInfoPanel();
   initSidebar(selectLayer, changeTheme);
+  initMobileLayout();
 
   document.getElementById('edit-reviewer').addEventListener('click', () => {
     openSetupModal({ editing: true });
@@ -44,6 +46,7 @@ function selectLayer(key) {
   showInfoPanel(key);
   loadReviewForLayer(key);
   setActiveLayer(key);
+  closeSidebarDrawer();
 }
 
 function changeTheme(themeId) {

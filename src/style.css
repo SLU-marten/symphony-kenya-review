@@ -395,6 +395,41 @@ body {
   z-index: 1000;
 }
 
+/* Basemap switcher (segmented) */
+.basemap-switcher {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  z-index: 1000;
+  display: inline-flex;
+  background: rgba(255,255,255,0.94);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 3px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.basemap-btn {
+  border: 0;
+  background: transparent;
+  padding: 6px 12px;
+  font: 500 12px var(--font);
+  color: var(--text-secondary);
+  border-radius: calc(var(--radius) - 2px);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.basemap-btn:hover {
+  color: var(--text-primary);
+}
+
+.basemap-btn.is-active {
+  background: var(--text-primary);
+  color: #fff;
+}
+
 #map-controls button {
   width: 36px;
   height: 36px;
@@ -427,13 +462,23 @@ body {
   flex: 2;
   display: flex;
   flex-direction: column;
-  overflow-y: auto;
   border-left: 1px solid var(--border);
   background: var(--bg-primary);
   max-width: 520px;
   min-width: 380px;
+}
+
+#right-panel-scroll {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
   padding: 12px;
   gap: 12px;
+}
+
+.sheet-handle {
+  display: none; /* desktop */
 }
 
 #info-panel,
@@ -986,4 +1031,215 @@ body {
 
 .modal-actions .btn-secondary:hover {
   background: var(--bg-primary);
+}
+
+/* === Mobile menu trigger + backdrop === */
+.sidebar-toggle {
+  display: none; /* desktop */
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  width: 40px;
+  height: 40px;
+  z-index: 1100;
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,0.94);
+  backdrop-filter: blur(8px);
+  border-radius: var(--radius);
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  align-items: center;
+  justify-content: center;
+}
+
+.hamburger-icon,
+.hamburger-icon::before,
+.hamburger-icon::after {
+  display: block;
+  width: 18px;
+  height: 2px;
+  background: var(--text-primary);
+  border-radius: 2px;
+}
+
+.hamburger-icon {
+  position: relative;
+}
+
+.hamburger-icon::before,
+.hamburger-icon::after {
+  content: "";
+  position: absolute;
+  left: 0;
+}
+
+.hamburger-icon::before { top: -6px; }
+.hamburger-icon::after  { top:  6px; }
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15,42,54,0.45);
+  z-index: 1400;
+  opacity: 0;
+  transition: opacity 0.2s;
+  pointer-events: none;
+}
+
+.backdrop.is-visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+body.drawer-open {
+  overflow: hidden;
+}
+
+/* === Mobile layout (<= 768px) === */
+@media (max-width: 768px) {
+  /* Hamburger trigger visible only on mobile */
+  .sidebar-toggle {
+    display: flex;
+  }
+
+  /* Sidebar becomes a left drawer */
+  #sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: min(85vw, 320px);
+    transform: translateX(-100%);
+    transition: transform 0.25s ease;
+    z-index: 1500;
+    box-shadow: 4px 0 20px rgba(0,0,0,0.2);
+  }
+
+  #sidebar.is-open {
+    transform: translateX(0);
+  }
+
+  /* Map fills the screen; the sheet overlays the bottom */
+  #map-viewer {
+    flex: 1;
+  }
+
+  /* Push basemap switcher down so it doesn't sit under the hamburger */
+  .basemap-switcher {
+    top: 64px;
+  }
+
+  /* Layer view stacks: map on top, panel docks at bottom */
+  #layer-view {
+    flex-direction: column;
+  }
+
+  /* Right panel becomes a bottom sheet */
+  #right-panel {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    max-width: none;
+    min-width: 0;
+    height: 96px; /* peek state: heading + flag chips */
+    border-left: none;
+    border-top: 1px solid var(--border);
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.08);
+    transition: height 0.3s ease;
+    z-index: 900;
+  }
+
+  #right-panel.sheet-full {
+    height: 80vh;
+  }
+
+  #right-panel-scroll {
+    padding: 8px 12px 24px;
+    gap: 8px;
+  }
+
+  /* Sheet drag handle */
+  .sheet-handle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 24px;
+    flex: 0 0 auto;
+    background: var(--bg-primary);
+    border: 0;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    padding: 0;
+  }
+
+  .sheet-handle-grip {
+    width: 40px;
+    height: 4px;
+    border-radius: 2px;
+    background: var(--border);
+    transition: background 0.15s;
+  }
+
+  .sheet-handle:hover .sheet-handle-grip,
+  .sheet-handle:focus-visible .sheet-handle-grip {
+    background: var(--text-secondary);
+  }
+
+  /* Bigger touch targets */
+  #map-controls button {
+    width: 40px;
+    height: 40px;
+  }
+
+  .basemap-btn {
+    padding: 8px 12px;
+  }
+
+  /* Modals: edge-to-edge with safe gutter */
+  .modal-overlay {
+    padding: 12px;
+  }
+
+  .modal-card,
+  .modal-card-wide {
+    max-height: calc(100vh - 24px);
+    width: 100%;
+    overflow-y: auto;
+  }
+
+  /* Two-column metadata grid collapses */
+  #metadata-modal-body .info-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Wider tap targets in form rows */
+  .checkbox-row,
+  .radio-row label,
+  .flag-radio {
+    min-height: 36px;
+  }
+
+  /* Lift legend + Leaflet attribution clear of the sheet peek (96px) */
+  #map-legend {
+    bottom: 112px;
+    left: 12px;
+    right: 12px;
+    min-width: 0;
+  }
+
+  .leaflet-control-attribution {
+    margin-bottom: 100px !important;
+  }
+
+  /* When the sheet is expanded, hide the legend so it doesn't sit on top
+     of the form content. Map controls remain at the top so they're still
+     reachable. */
+  body.sheet-full #map-legend {
+    display: none;
+  }
+
+  body.sheet-full .leaflet-control-attribution {
+    display: none;
+  }
 }

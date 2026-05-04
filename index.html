@@ -10,6 +10,11 @@
 </head>
 <body>
   <div id="app">
+    <button id="sidebar-toggle" class="sidebar-toggle" type="button" aria-label="Open layer list" aria-expanded="false">
+      <span class="hamburger-icon" aria-hidden="true"></span>
+    </button>
+    <div id="backdrop" class="backdrop" hidden></div>
+
     <aside id="sidebar">
       <div id="sidebar-header">
         <h1>Symphony Kenya</h1>
@@ -48,10 +53,16 @@
             <button id="zoom-out" title="Zoom out">&minus;</button>
             <button id="zoom-reset" title="Reset view">Reset</button>
           </div>
+          <div id="basemap-switcher" class="basemap-switcher" role="group" aria-label="Basemap"></div>
         </div>
         <div id="right-panel">
-          <section id="info-panel"></section>
-          <section id="review-section"></section>
+          <button id="sheet-handle" class="sheet-handle" type="button" aria-label="Expand panel">
+            <span class="sheet-handle-grip" aria-hidden="true"></span>
+          </button>
+          <div id="right-panel-scroll">
+            <section id="info-panel"></section>
+            <section id="review-section"></section>
+          </div>
         </div>
       </div>
     </main>
