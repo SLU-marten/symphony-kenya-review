@@ -1147,11 +1147,12 @@ body.drawer-open {
     border-top: 1px solid var(--border);
     box-shadow: 0 -4px 20px rgba(0,0,0,0.08);
     transition: height 0.3s ease;
-    z-index: 900;
+    z-index: 1200; /* above all map controls (1000) so the sheet always wins */
   }
 
   #right-panel.sheet-full {
-    height: 80vh;
+    height: 100vh;
+    height: 100dvh; /* full screen when expanded so no map controls peek through */
   }
 
   #right-panel-scroll {
