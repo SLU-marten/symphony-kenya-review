@@ -1254,4 +1254,13 @@ body.drawer-open {
   .leaflet-control-attribution {
     display: none;
   }
+
+  /* When the sheet is expanded, hide every floating map control so they
+     don't sit on top of the form. Keep the hamburger so the user can still
+     jump to another layer from the form view. */
+  body.sheet-full #map-legend,
+  body.sheet-full #map-controls,
+  body.sheet-full .basemap-switcher {
+    display: none;
+  }
 }
