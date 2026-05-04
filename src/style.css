@@ -1220,13 +1220,35 @@ body.drawer-open {
     min-height: 36px;
   }
 
-  /* Hide the floating legend on mobile — it lives inside #map-viewer (whose
-     height is 100vh, which on mobile Chrome includes the URL bar). With a
-     bottom: offset that pushes it under the visible viewport it ends up
-     overlapping the sheet handle and stealing taps. The layer title +
-     pressure/presence label already live in the info-panel below. */
+  /* Move the legend to the top-right (below zoom controls). Top-anchored so
+     it doesn't get pushed off-screen by mobile Chrome's 100vh-includes-the-
+     URL-bar quirk, and compact so it doesn't crowd the map. */
   #map-legend {
-    display: none;
+    top: 148px;       /* clear zoom controls: 16 + 3*40 + 2*4 = 144 */
+    right: 12px;
+    bottom: auto;
+    left: auto;
+    min-width: 0;
+    max-width: 180px;
+    padding: 8px 10px;
+  }
+
+  #map-legend h4 {
+    font-size: 11px;
+    margin-bottom: 6px;
+  }
+
+  .legend-gradient {
+    height: 8px;
+  }
+
+  .legend-axis {
+    font-size: 10px;
+    margin-bottom: 6px;
+  }
+
+  .legend-nodata {
+    font-size: 10px;
   }
 
   .leaflet-control-attribution {
