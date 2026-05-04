@@ -8,6 +8,7 @@ const REVIEW_INSTRUCTIONS = `Mark each layer based on your expert judgement: <st
 const FOCUS_OPTIONS = [
   { value: 'data_accuracy', label: 'Data accuracy' },
   { value: 'data_completeness', label: 'Data completeness' },
+  { value: 'method', label: 'Method' },
   { value: 'visualization', label: 'Visualization' },
 ];
 
