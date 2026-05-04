@@ -1220,26 +1220,16 @@ body.drawer-open {
     min-height: 36px;
   }
 
-  /* Lift legend + Leaflet attribution clear of the sheet peek (96px) */
+  /* Hide the floating legend on mobile — it lives inside #map-viewer (whose
+     height is 100vh, which on mobile Chrome includes the URL bar). With a
+     bottom: offset that pushes it under the visible viewport it ends up
+     overlapping the sheet handle and stealing taps. The layer title +
+     pressure/presence label already live in the info-panel below. */
   #map-legend {
-    bottom: 112px;
-    left: 12px;
-    right: 12px;
-    min-width: 0;
-  }
-
-  .leaflet-control-attribution {
-    margin-bottom: 100px !important;
-  }
-
-  /* When the sheet is expanded, hide the legend so it doesn't sit on top
-     of the form content. Map controls remain at the top so they're still
-     reachable. */
-  body.sheet-full #map-legend {
     display: none;
   }
 
-  body.sheet-full .leaflet-control-attribution {
+  .leaflet-control-attribution {
     display: none;
   }
 }
