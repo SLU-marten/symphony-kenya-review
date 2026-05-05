@@ -48,6 +48,11 @@ export function initMobileLayout({ onSidebarOpen } = {}) {
       'aria-label',
       state === 'full' ? 'Collapse panel' : 'Expand panel'
     );
+    const textEl = sheetHandle.querySelector('.sheet-handle-text');
+    if (textEl) {
+      textEl.textContent =
+        state === 'full' ? 'Tap to close' : 'Tap to open metadata & review';
+    }
   }
 }
 

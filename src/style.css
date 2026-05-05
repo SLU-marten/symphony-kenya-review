@@ -1142,7 +1142,7 @@ body.drawer-open {
     right: 0;
     max-width: none;
     min-width: 0;
-    height: 96px; /* peek state: heading + flag chips */
+    height: 112px; /* peek: 44px handle + a sliver of content */
     border-left: none;
     border-top: 1px solid var(--border);
     box-shadow: 0 -4px 20px rgba(0,0,0,0.08);
@@ -1160,31 +1160,61 @@ body.drawer-open {
     gap: 8px;
   }
 
-  /* Sheet drag handle */
+  /* Sheet drag handle — grip + label so it's obvious you tap to expand */
   .sheet-handle {
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    height: 24px;
+    gap: 4px;
+    height: 44px;
     flex: 0 0 auto;
-    background: var(--bg-primary);
+    background: var(--bg-card);
     border: 0;
     border-bottom: 1px solid var(--border);
     cursor: pointer;
-    padding: 0;
+    padding: 4px 0;
+    transition: background 0.15s;
+  }
+
+  .sheet-handle:hover,
+  .sheet-handle:focus-visible {
+    background: var(--bg-primary);
   }
 
   .sheet-handle-grip {
-    width: 40px;
-    height: 4px;
-    border-radius: 2px;
+    width: 48px;
+    height: 5px;
+    border-radius: 3px;
     background: var(--border);
     transition: background 0.15s;
   }
 
   .sheet-handle:hover .sheet-handle-grip,
   .sheet-handle:focus-visible .sheet-handle-grip {
-    background: var(--text-secondary);
+    background: var(--accent);
+  }
+
+  .sheet-handle-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--accent);
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+  }
+
+  .sheet-handle-arrow {
+    display: inline-block;
+    font-size: 9px;
+    transition: transform 0.25s ease;
+  }
+
+  /* When expanded, flip the arrow and update the label */
+  #right-panel.sheet-full .sheet-handle-arrow {
+    transform: rotate(180deg);
   }
 
   /* Bigger touch targets */
