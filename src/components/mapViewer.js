@@ -7,6 +7,15 @@ let dataBounds = null;
 let activeBaseId = 'light';
 let activeBaseLayers = [];
 
+// Cell-value tooltip state. The bin is a UInt8-quantized grid at native TIFF
+// resolution; cache one Uint8Array per layer key so re-visiting a layer is instant.
+let rasterMeta = null; // { width, height, value_min, value_max, nodata, quant_max }
+let activeValues = null; // { key, data: Uint8Array }
+let activeValuesKey = null; // most recently requested key — guards against stale fetches
+const valuesCache = new Map(); // key -> Uint8Array
+let tooltipEl = null;
+let valueFormatter = (v) => v.toFixed(1);
+
 const FIT_PADDING = [24, 24];
 
 const BASEMAPS = {
@@ -91,8 +100,9 @@ const BASEMAPS = {
   },
 };
 
-export function initMapViewer(boundsLatLng) {
+export function initMapViewer(boundsLatLng, raster) {
   dataBounds = L.latLngBounds(boundsLatLng);
+  rasterMeta = raster || null;
 
   map = L.map('map-container', {
     zoomControl: false,
@@ -104,6 +114,7 @@ export function initMapViewer(boundsLatLng) {
 
   applyBasemap(activeBaseId);
   buildBasemapSwitcher();
+  setupValueTooltip();
 
   map.fitBounds(dataBounds, { padding: FIT_PADDING });
 
@@ -157,7 +168,7 @@ function buildBasemapSwitcher() {
   });
 }
 
-export function showMap(mapUrl) {
+export function showMap(mapUrl, valuesUrl, layerKey) {
   if (!map) return;
   // Container may have been display:none on init — recompute size before we do anything else.
   map.invalidateSize();
@@ -173,6 +184,8 @@ export function showMap(mapUrl) {
   }).addTo(map);
 
   map.fitBounds(dataBounds, { padding: FIT_PADDING });
+
+  loadValuesForLayer(valuesUrl, layerKey);
 }
 
 export function setLegend(layer) {
@@ -182,4 +195,117 @@ export function setLegend(layer) {
   titleEl.textContent = `${layer.title} — ${suffix}`;
   gradientEl.classList.remove('ramp-ecosystem', 'ramp-pressure');
   gradientEl.classList.add(layer.theme === 'pressure' ? 'ramp-pressure' : 'ramp-ecosystem');
+}
+
+// === Cell-value tooltip ============================================
+//
+// Desktop: hover triggers `mousemove` on the Leaflet map; we look up the
+//   underlying raster cell and show a tooltip near the cursor.
+// Mobile (no hover): tap fires `click`; same lookup, tooltip appears at the
+//   tap point and stays until the next tap or layer change.
+//
+// Pixel lookup uses Leaflet layer-points so the projection (EPSG:3857) is
+// honoured — the imageOverlay is positioned via `latLngToLayerPoint` of the
+// corner lat/lngs, so the same projection of the cursor lat/lng lands on the
+// correct pixel of the overlay.
+
+function setupValueTooltip() {
+  const host = document.getElementById('map-viewer');
+  if (!host) return;
+
+  tooltipEl = document.createElement('div');
+  tooltipEl.className = 'cell-value-tooltip';
+  tooltipEl.setAttribute('aria-hidden', 'true');
+  host.appendChild(tooltipEl);
+
+  map.on('mousemove', handlePointerEvent);
+  map.on('click', handlePointerEvent);
+  map.on('mouseout', hideTooltip);
+  // Pan/zoom: the cursor position no longer reflects a meaningful cell while
+  // the world is moving; hide the tooltip until the next mousemove/click.
+  map.on('movestart', hideTooltip);
+  map.on('zoomstart', hideTooltip);
+}
+
+function handlePointerEvent(e) {
+  if (!activeValues || !rasterMeta) {
+    hideTooltip();
+    return;
+  }
+  const value = lookupValue(e.latlng);
+  if (value === null) {
+    hideTooltip();
+    return;
+  }
+  showTooltip(e.containerPoint, value);
+}
+
+function lookupValue(latlng) {
+  const meta = rasterMeta;
+  if (!meta || !activeValues) return null;
+  const { width, height, nodata, quant_max, value_min, value_max } = meta;
+
+  const tl = map.latLngToLayerPoint(dataBounds.getNorthWest());
+  const br = map.latLngToLayerPoint(dataBounds.getSouthEast());
+  const pt = map.latLngToLayerPoint(latlng);
+
+  const fracX = (pt.x - tl.x) / (br.x - tl.x);
+  const fracY = (pt.y - tl.y) / (br.y - tl.y);
+  if (fracX < 0 || fracX >= 1 || fracY < 0 || fracY >= 1) return null;
+
+  const px = Math.min(width - 1, Math.floor(fracX * width));
+  const py = Math.min(height - 1, Math.floor(fracY * height));
+  const raw = activeValues.data[py * width + px];
+  if (raw === nodata) return null;
+
+  const span = value_max - value_min;
+  return value_min + (raw / quant_max) * span;
+}
+
+function showTooltip(containerPoint, value) {
+  if (!tooltipEl) return;
+  tooltipEl.textContent = valueFormatter(value);
+  tooltipEl.style.left = `${containerPoint.x}px`;
+  tooltipEl.style.top = `${containerPoint.y}px`;
+  tooltipEl.classList.add('is-visible');
+}
+
+function hideTooltip() {
+  if (tooltipEl) tooltipEl.classList.remove('is-visible');
+}
+
+async function loadValuesForLayer(valuesUrl, layerKey) {
+  if (!valuesUrl || !layerKey || !rasterMeta) {
+    activeValues = null;
+    activeValuesKey = null;
+    hideTooltip();
+    return;
+  }
+
+  activeValuesKey = layerKey;
+
+  const cached = valuesCache.get(layerKey);
+  if (cached) {
+    activeValues = { key: layerKey, data: cached };
+    return;
+  }
+
+  // Drop the previous active layer's values immediately so a stale tooltip
+  // can't appear on top of the wrong layer during the fetch.
+  activeValues = null;
+  hideTooltip();
+
+  try {
+    const response = await fetch(valuesUrl);
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const buffer = await response.arrayBuffer();
+    const data = new Uint8Array(buffer);
+    valuesCache.set(layerKey, data);
+    if (activeValuesKey === layerKey) {
+      activeValues = { key: layerKey, data };
+    }
+  } catch (err) {
+    // Tooltip just stays disabled for this layer; not worth surfacing in UI.
+    console.warn(`Failed to load value bin for ${layerKey}:`, err);
+  }
 }

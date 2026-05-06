@@ -2,9 +2,15 @@
 Preprocess the Mombasa 2026 multiband GeoTIFFs + metadata CSV into the
 shape consumed by the Symphony Kenya review web app:
 
-  public/data/layers.json                 ({ bounds: [[s,w],[n,e]], layers: [...] })
-  public/data/maps/ecosystem/<slug>.png   (12 PNGs, YlGn ramp)
-  public/data/maps/pressure/<slug>.png    ( 8 PNGs, YlOrRd ramp)
+  public/data/layers.json                   ({ bounds, raster, layers: [...] })
+  public/data/maps/ecosystem/<slug>.png     (12 PNGs, YlGn ramp)
+  public/data/maps/pressure/<slug>.png     ( 8 PNGs, YlOrRd ramp)
+  public/data/values/ecosystem/<slug>.bin   (12 UInt8 raster value arrays)
+  public/data/values/pressure/<slug>.bin    ( 8 UInt8 raster value arrays)
+
+Value bins are quantized 0..254 over the [0, 100] range with 255 as the
+nodata sentinel. Always written at the TIFF's native resolution so the
+hover/tap tooltip in the web app sees the un-resampled source value.
 """
 from __future__ import annotations
 
@@ -44,6 +50,7 @@ PROJECT_ROOT = SCRIPT_DIR.parent
 DATA_DIR = PROJECT_ROOT.parent / "Layers_260427_250m"
 OUT_DATA_DIR = PROJECT_ROOT / "public" / "data"
 MAPS_DIR = OUT_DATA_DIR / "maps"
+VALUES_DIR = OUT_DATA_DIR / "values"
 JSON_PATH = OUT_DATA_DIR / "layers.json"
 CSV_PATH = DATA_DIR / "metadata_Layers_260427_250m.csv"
 
@@ -61,6 +68,9 @@ THEMES = {
 }
 
 VALUE_RANGE = (0.0, 100.0)
+# UInt8 quantization: 0 → 0, 100 → 254, NaN/explicit-nodata → 255.
+VALUES_NODATA = 255
+VALUES_QUANT_MAX = 254
 PLACEHOLDER_VALUES = {"", "n/a", "na", "later", "add later", "v"}
 DATE_RE = re.compile(r"^(\d{4})-(\d{1,2})-(\d{1,2})$")
 
@@ -101,7 +111,7 @@ def split_links(s: str | None) -> list[str]:
     return out
 
 
-def build_layer_record(row: dict, map_relpath: str) -> dict:
+def build_layer_record(row: dict, map_relpath: str, values_relpath: str) -> dict:
     theme_key = (row.get("theme") or "").strip().lower()
     title = (row.get("title") or "").strip()
     return {
@@ -128,6 +138,7 @@ def build_layer_record(row: dict, map_relpath: str) -> dict:
             "org": normalize_value(row.get("contact_org")),
         },
         "map_file": map_relpath,
+        "values_file": values_relpath,
     }
 
 
@@ -143,7 +154,8 @@ def parse_metadata(csv_path: Path) -> list[dict]:
             title = (row.get("title") or "").strip()
             slug = slugify(title)
             map_relpath = f"data/maps/{theme_raw}/{slug}.png"
-            records.append(build_layer_record(row, map_relpath))
+            values_relpath = f"data/values/{theme_raw}/{slug}.bin"
+            records.append(build_layer_record(row, map_relpath, values_relpath))
     records.sort(
         key=lambda r: (0 if r["theme"] == "ecosystem" else 1, r["band"])
     )
@@ -195,6 +207,42 @@ def render_band(
     gc.collect()
 
 
+def render_band_values(
+    tif_path: Path,
+    band_idx: int,
+    out_path: Path,
+    value_range: tuple[float, float] = VALUE_RANGE,
+) -> tuple[int, int]:
+    """Write a UInt8-quantized binary of cell values at native TIFF resolution.
+
+    Encoding: value in [lo, hi] → round((value-lo)/(hi-lo) * 254), clipped.
+    NaN or explicit nodata → VALUES_NODATA (255). Zero is preserved as a real
+    value (unlike the PNG, which renders zero as transparent).
+
+    Returns (width, height) so callers can record the grid dimensions.
+    """
+    with rasterio.open(tif_path) as src:
+        nodata = src.nodata
+        arr = src.read(band_idx).astype(np.float32, copy=False)
+
+    nodata_mask = (arr == nodata) if nodata is not None else np.zeros_like(arr, dtype=bool)
+    invalid = nodata_mask | np.isnan(arr)
+
+    lo, hi = value_range
+    span = max(hi - lo, 1e-9)
+    clipped = np.clip(arr, lo, hi)
+    quantized = np.rint((clipped - lo) / span * VALUES_QUANT_MAX).astype(np.uint8)
+    quantized[invalid] = VALUES_NODATA
+
+    h, w = quantized.shape
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    quantized.tofile(out_path)
+
+    del arr, clipped, quantized
+    gc.collect()
+    return (int(w), int(h))
+
+
 def maybe_pngquant(out_path: Path) -> None:
     if not shutil.which("pngquant"):
         print(f"    [warn] pngquant not found on PATH; skipping compression for {out_path.name}")
@@ -230,8 +278,12 @@ def reference_tif() -> Path:
     raise FileNotFoundError("No source TIFF found")
 
 
-def compute_bounds_latlon() -> list[list[float]]:
-    """Return [[south, west], [north, east]] in EPSG:4326 — the format Leaflet expects."""
+def compute_bounds_and_dims() -> tuple[list[list[float]], int, int]:
+    """Return ([[south, west], [north, east]] in EPSG:4326, width, height) from the reference TIFF.
+
+    The bounds are what Leaflet's imageOverlay expects; width/height are the
+    native pixel dimensions used to size the value-bin grid.
+    """
     ref = reference_tif()
     with rasterio.open(ref) as src:
         if src.crs is None:
@@ -240,23 +292,39 @@ def compute_bounds_latlon() -> list[list[float]]:
         west, south, east, north = transform_bounds(
             src.crs, "EPSG:4326", *src.bounds, densify_pts=21
         )
-    return [[south, west], [north, east]]
+        width, height = src.width, src.height
+    return [[south, west], [north, east]], int(width), int(height)
 
 
-def render_theme(theme_key: str, records: list[dict], downsample: int, compress: bool, only_band: int | None) -> None:
+def render_theme(
+    theme_key: str,
+    records: list[dict],
+    downsample: int,
+    compress: bool,
+    only_band: int | None,
+    do_pngs: bool,
+    do_values: bool,
+) -> None:
     cfg = THEMES[theme_key]
     tif = cfg["tif"]
     cmap_name = cfg["cmap"]
-    print(f"  rendering theme={theme_key} from {tif.name} (cmap={cmap_name}, downsample={downsample})")
+    flags = ", ".join(filter(None, ["pngs" if do_pngs else None, "values" if do_values else None]))
+    print(f"  rendering theme={theme_key} from {tif.name} (cmap={cmap_name}, downsample={downsample}, {flags})")
     theme_records = [r for r in records if r["theme"] == theme_key]
     for rec in theme_records:
         if only_band is not None and rec["band"] != only_band:
             continue
-        out_path = MAPS_DIR / theme_key / f"{rec['slug']}.png"
-        print(f"    band {rec['band']:>2} -> {out_path.relative_to(PROJECT_ROOT)}")
-        render_band(tif, rec["band"], out_path, cmap_name, downsample=downsample)
-        if compress:
-            maybe_pngquant(out_path)
+        if do_pngs:
+            out_path = MAPS_DIR / theme_key / f"{rec['slug']}.png"
+            print(f"    band {rec['band']:>2} png -> {out_path.relative_to(PROJECT_ROOT)}")
+            render_band(tif, rec["band"], out_path, cmap_name, downsample=downsample)
+            if compress:
+                maybe_pngquant(out_path)
+        if do_values:
+            bin_path = VALUES_DIR / theme_key / f"{rec['slug']}.bin"
+            w, h = render_band_values(tif, rec["band"], bin_path)
+            size_kb = bin_path.stat().st_size / 1024
+            print(f"    band {rec['band']:>2} bin -> {bin_path.relative_to(PROJECT_ROOT)} ({w}x{h}, {size_kb:.0f} KB)")
 
 
 def parse_args() -> argparse.Namespace:
@@ -264,8 +332,10 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--theme", choices=list(THEMES.keys()), help="Restrict to one theme")
     p.add_argument("--band", type=int, help="Restrict to one band index (1-based)")
     p.add_argument("--json-only", action="store_true", help="Only rebuild layers.json")
-    p.add_argument("--maps-only", action="store_true", help="Only rebuild layer PNGs")
-    p.add_argument("--low-res", action="store_true", help="Render at 2x downsampled (1270x723); default is native 2541x1447")
+    p.add_argument("--maps-only", action="store_true", help="Only rebuild PNGs and value bins (no JSON)")
+    p.add_argument("--values-only", action="store_true", help="Only rebuild value bins (no JSON, no PNGs)")
+    p.add_argument("--skip-values", action="store_true", help="Skip value bin generation")
+    p.add_argument("--low-res", action="store_true", help="Render PNGs at 2x downsampled (1270x723); default is native 2541x1447. Value bins are always native.")
     p.add_argument("--full-res", action="store_true", help="Deprecated alias; native is now the default")
     p.add_argument("--compress", action="store_true", help="Run pngquant on each band PNG (if installed)")
     return p.parse_args()
@@ -274,8 +344,9 @@ def parse_args() -> argparse.Namespace:
 def main() -> int:
     args = parse_args()
 
-    do_json = not args.maps_only
-    do_bands = not args.json_only
+    do_json = not args.maps_only and not args.values_only
+    do_pngs = not args.json_only and not args.values_only
+    do_values = not args.json_only and not args.skip_values
 
     if not CSV_PATH.exists():
         print(f"ERROR: CSV not found: {CSV_PATH}", file=sys.stderr)
@@ -286,23 +357,39 @@ def main() -> int:
     print(f"  parsed {len(records)} rows ({sum(1 for r in records if r['theme']=='ecosystem')} ecosystem + {sum(1 for r in records if r['theme']=='pressure')} pressure)")
 
     if do_json:
-        print("Computing lat/lon bounds from reference TIFF...")
+        print("Computing lat/lon bounds and dimensions from reference TIFF...")
         try:
-            bounds = compute_bounds_latlon()
+            bounds, width, height = compute_bounds_and_dims()
         except Exception as e:
             print(f"  ERROR computing bounds: {e}", file=sys.stderr)
             return 1
-        write_json({"bounds": bounds, "layers": records}, JSON_PATH)
+        payload = {
+            "bounds": bounds,
+            "raster": {
+                "width": width,
+                "height": height,
+                "value_min": VALUE_RANGE[0],
+                "value_max": VALUE_RANGE[1],
+                "encoding": "uint8",
+                "nodata": VALUES_NODATA,
+                "quant_max": VALUES_QUANT_MAX,
+            },
+            "layers": records,
+        }
+        write_json(payload, JSON_PATH)
 
     downsample = 2 if args.low_res else 1
 
-    if do_bands:
+    if do_pngs or do_values:
         themes_to_run = [args.theme] if args.theme else list(THEMES.keys())
         for theme_key in themes_to_run:
             if not THEMES[theme_key]["tif"].exists():
                 print(f"  [skip] {theme_key}: TIFF not found at {THEMES[theme_key]['tif']}")
                 continue
-            render_theme(theme_key, records, downsample, args.compress, args.band)
+            render_theme(
+                theme_key, records, downsample, args.compress, args.band,
+                do_pngs=do_pngs, do_values=do_values,
+            )
 
     print("Done.")
     return 0

@@ -3,9 +3,11 @@ import {
   loadLayerData,
   getLayer,
   getMapUrl,
+  getValuesUrl,
   getLayersByTheme,
   setCurrentTheme,
   getBounds,
+  getRaster,
 } from './services/dataService.js';
 import { initSidebar, setActiveLayer, refreshLayerList } from './components/sidebar.js';
 import { initMapViewer, showMap, setLegend } from './components/mapViewer.js';
@@ -20,7 +22,7 @@ import { initMobileLayout, closeSidebarDrawer } from './components/mobileLayout.
 
 async function init() {
   await loadLayerData();
-  initMapViewer(getBounds());
+  initMapViewer(getBounds(), getRaster());
   initReviewForm();
   initSetupModal();
   initInfoPanel();
@@ -41,7 +43,7 @@ function selectLayer(key) {
   if (!layer) return;
   document.getElementById('welcome-screen').classList.add('hidden');
   document.getElementById('layer-view').classList.remove('hidden');
-  showMap(getMapUrl(layer));
+  showMap(getMapUrl(layer), getValuesUrl(layer), key);
   setLegend(layer);
   showInfoPanel(key);
   loadReviewForLayer(key);

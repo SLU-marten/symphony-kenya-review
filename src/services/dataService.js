@@ -1,5 +1,6 @@
 let layers = [];
 let bounds = null;
+let raster = null;
 let layersByKey = new Map();
 let layersByTheme = { ecosystem: [], pressure: [] };
 let currentTheme = 'ecosystem';
@@ -14,6 +15,7 @@ export async function loadLayerData() {
   const payload = await response.json();
   layers = payload.layers;
   bounds = payload.bounds;
+  raster = payload.raster || null;
   layersByKey.clear();
   layersByTheme.ecosystem = [];
   layersByTheme.pressure = [];
@@ -30,6 +32,10 @@ export async function loadLayerData() {
 
 export function getBounds() {
   return bounds;
+}
+
+export function getRaster() {
+  return raster;
 }
 
 export function getThemes() {
@@ -50,6 +56,10 @@ export function getLayersByTheme(themeId) {
 
 export function getMapUrl(layer) {
   return `./${layer.map_file}`;
+}
+
+export function getValuesUrl(layer) {
+  return layer.values_file ? `./${layer.values_file}` : null;
 }
 
 export function getCurrentTheme() {

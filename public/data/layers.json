@@ -9,6 +9,15 @@
       44.92544661582893
     ]
   ],
+  "raster": {
+    "width": 2541,
+    "height": 1447,
+    "value_min": 0.0,
+    "value_max": 100.0,
+    "encoding": "uint8",
+    "nodata": 255,
+    "quant_max": 254
+  },
   "layers": [
     {
       "theme": "ecosystem",
@@ -35,7 +44,8 @@
         "phone": null,
         "org": "Swedish Geological Survey"
       },
-      "map_file": "data/maps/ecosystem/mangrove.png"
+      "map_file": "data/maps/ecosystem/mangrove.png",
+      "values_file": "data/values/ecosystem/mangrove.bin"
     },
     {
       "theme": "ecosystem",
@@ -63,7 +73,8 @@
         "phone": null,
         "org": "Swedish Geological Survey"
       },
-      "map_file": "data/maps/ecosystem/abyss-hard.png"
+      "map_file": "data/maps/ecosystem/abyss-hard.png",
+      "values_file": "data/values/ecosystem/abyss-hard.bin"
     },
     {
       "theme": "ecosystem",
@@ -91,7 +102,8 @@
         "phone": null,
         "org": "Swedish Geological Survey"
       },
-      "map_file": "data/maps/ecosystem/abyss-soft.png"
+      "map_file": "data/maps/ecosystem/abyss-soft.png",
+      "values_file": "data/values/ecosystem/abyss-soft.bin"
     },
     {
       "theme": "ecosystem",
@@ -119,7 +131,8 @@
         "phone": null,
         "org": "Swedish Geological Survey"
       },
-      "map_file": "data/maps/ecosystem/slope-hard.png"
+      "map_file": "data/maps/ecosystem/slope-hard.png",
+      "values_file": "data/values/ecosystem/slope-hard.bin"
     },
     {
       "theme": "ecosystem",
@@ -147,7 +160,8 @@
         "phone": null,
         "org": "Swedish Geological Survey"
       },
-      "map_file": "data/maps/ecosystem/slope-soft.png"
+      "map_file": "data/maps/ecosystem/slope-soft.png",
+      "values_file": "data/values/ecosystem/slope-soft.bin"
     },
     {
       "theme": "ecosystem",
@@ -175,7 +189,8 @@
         "phone": null,
         "org": "Swedish Geological Survey"
       },
-      "map_file": "data/maps/ecosystem/shelf-hard.png"
+      "map_file": "data/maps/ecosystem/shelf-hard.png",
+      "values_file": "data/values/ecosystem/shelf-hard.bin"
     },
     {
       "theme": "ecosystem",
@@ -203,7 +218,8 @@
         "phone": null,
         "org": "Swedish Geological Survey"
       },
-      "map_file": "data/maps/ecosystem/shelf-soft.png"
+      "map_file": "data/maps/ecosystem/shelf-soft.png",
+      "values_file": "data/values/ecosystem/shelf-soft.bin"
     },
     {
       "theme": "ecosystem",
@@ -231,7 +247,8 @@
         "phone": null,
         "org": "Swedish Geological Survey"
       },
-      "map_file": "data/maps/ecosystem/shallow-hard.png"
+      "map_file": "data/maps/ecosystem/shallow-hard.png",
+      "values_file": "data/values/ecosystem/shallow-hard.bin"
     },
     {
       "theme": "ecosystem",
@@ -259,7 +276,8 @@
         "phone": null,
         "org": "Swedish Geological Survey"
       },
-      "map_file": "data/maps/ecosystem/shallow-soft.png"
+      "map_file": "data/maps/ecosystem/shallow-soft.png",
+      "values_file": "data/values/ecosystem/shallow-soft.bin"
     },
     {
       "theme": "ecosystem",
@@ -284,7 +302,8 @@
         "phone": null,
         "org": null
       },
-      "map_file": "data/maps/ecosystem/shore.png"
+      "map_file": "data/maps/ecosystem/shore.png",
+      "values_file": "data/values/ecosystem/shore.bin"
     },
     {
       "theme": "ecosystem",
@@ -309,7 +328,8 @@
         "phone": null,
         "org": null
       },
-      "map_file": "data/maps/ecosystem/sea-birds.png"
+      "map_file": "data/maps/ecosystem/sea-birds.png",
+      "values_file": "data/values/ecosystem/sea-birds.bin"
     },
     {
       "theme": "ecosystem",
@@ -334,7 +354,8 @@
         "phone": null,
         "org": null
       },
-      "map_file": "data/maps/ecosystem/upwelling-pelagic.png"
+      "map_file": "data/maps/ecosystem/upwelling-pelagic.png",
+      "values_file": "data/values/ecosystem/upwelling-pelagic.bin"
     },
     {
       "theme": "pressure",
@@ -361,7 +382,8 @@
         "phone": null,
         "org": "Swedish Geological Survey"
       },
-      "map_file": "data/maps/pressure/plastic-litter.png"
+      "map_file": "data/maps/pressure/plastic-litter.png",
+      "values_file": "data/values/pressure/plastic-litter.bin"
     },
     {
       "theme": "pressure",
@@ -388,7 +410,8 @@
         "phone": null,
         "org": "Swedish Geological Survey"
       },
-      "map_file": "data/maps/pressure/ship-pollution.png"
+      "map_file": "data/maps/pressure/ship-pollution.png",
+      "values_file": "data/values/pressure/ship-pollution.bin"
     },
     {
       "theme": "pressure",
@@ -415,7 +438,8 @@
         "phone": null,
         "org": "Swedish Geological Survey"
       },
-      "map_file": "data/maps/pressure/boating.png"
+      "map_file": "data/maps/pressure/boating.png",
+      "values_file": "data/values/pressure/boating.bin"
     },
     {
       "theme": "pressure",
@@ -442,7 +466,8 @@
         "phone": null,
         "org": "Swedish Geological Survey"
       },
-      "map_file": "data/maps/pressure/demersal-trawl.png"
+      "map_file": "data/maps/pressure/demersal-trawl.png",
+      "values_file": "data/values/pressure/demersal-trawl.bin"
     },
     {
       "theme": "pressure",
@@ -469,7 +494,8 @@
         "phone": null,
         "org": "Swedish Geological Survey"
       },
-      "map_file": "data/maps/pressure/demersal-gillnet.png"
+      "map_file": "data/maps/pressure/demersal-gillnet.png",
+      "values_file": "data/values/pressure/demersal-gillnet.bin"
     },
     {
       "theme": "pressure",
@@ -496,7 +522,8 @@
         "phone": null,
         "org": "Swedish Geological Survey"
       },
-      "map_file": "data/maps/pressure/floating-longline.png"
+      "map_file": "data/maps/pressure/floating-longline.png",
+      "values_file": "data/values/pressure/floating-longline.bin"
     },
     {
       "theme": "pressure",
@@ -521,7 +548,8 @@
         "phone": null,
         "org": null
       },
-      "map_file": "data/maps/pressure/ocean-acidification.png"
+      "map_file": "data/maps/pressure/ocean-acidification.png",
+      "values_file": "data/values/pressure/ocean-acidification.bin"
     },
     {
       "theme": "pressure",
@@ -546,7 +574,8 @@
         "phone": null,
         "org": null
       },
-      "map_file": "data/maps/pressure/sea-level-rise.png"
+      "map_file": "data/maps/pressure/sea-level-rise.png",
+      "values_file": "data/values/pressure/sea-level-rise.bin"
     }
   ]
 }

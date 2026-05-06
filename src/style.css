@@ -306,6 +306,31 @@ body {
   image-rendering: crisp-edges;
 }
 
+/* Cell-value tooltip — follows the cursor on desktop, anchored at the tap
+   point on mobile. Offset up-and-right of the pointer so the value isn't
+   covered by the finger or cursor itself. */
+.cell-value-tooltip {
+  position: absolute;
+  transform: translate(12px, -130%);
+  padding: 4px 8px;
+  font: 600 12px var(--font);
+  font-variant-numeric: tabular-nums;
+  color: var(--text-primary);
+  background: rgba(255,255,255,0.96);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+  pointer-events: none;
+  z-index: 1100;
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.08s linear;
+}
+
+.cell-value-tooltip.is-visible {
+  opacity: 1;
+}
+
 /* Tone down the OSM/Carto attribution so it doesn't fight the legend. */
 .leaflet-control-attribution {
   font-size: 10px;

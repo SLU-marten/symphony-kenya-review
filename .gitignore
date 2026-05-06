@@ -4,6 +4,7 @@ __pycache__/
 *.pyc
 scripts/_cache/
 public/data/maps/
+public/data/values/
 public/data/basemap.png
 .env.local
 .env.*.local
