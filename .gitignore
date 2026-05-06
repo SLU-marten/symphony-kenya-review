@@ -9,3 +9,5 @@ public/data/basemap.png
 .env.local
 .env.*.local
 .DS_Store
+CLAUDE.md
+GOOGLE_SHEETS_SETUP.md
