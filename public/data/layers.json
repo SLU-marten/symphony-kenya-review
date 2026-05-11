@@ -358,6 +358,60 @@
       "values_file": "data/values/ecosystem/upwelling-pelagic.bin"
     },
     {
+      "theme": "ecosystem",
+      "band": 13,
+      "slug": "dugong-dolphin",
+      "title": "Dugong_Dolphin",
+      "subtheme": "Dugong_Dolphin",
+      "description": "Dugong_Dolphin",
+      "providers": "Dugong_Dolphin",
+      "latest_update": "1998-01-01",
+      "temporal_start": "2000-01-01",
+      "temporal_end": "2000-01-01",
+      "data_collected": "2000-01-01",
+      "method_summary": "Presence/Absence Data",
+      "known_limitations": "- Very old",
+      "source_citation": "World Resources Institute",
+      "lineage": "Dugong Dolphin",
+      "links": [
+        "https://www.wri.org/data/kenya-gis-data#biodiversity"
+      ],
+      "contact": {
+        "name": "Kilian (?)",
+        "email": "kilian.burgi@slu.se",
+        "phone": "-",
+        "org": "SLU"
+      },
+      "map_file": "data/maps/ecosystem/dugong-dolphin.png",
+      "values_file": "data/values/ecosystem/dugong-dolphin.bin"
+    },
+    {
+      "theme": "ecosystem",
+      "band": 14,
+      "slug": "blue-shark",
+      "title": "Blue Shark",
+      "subtheme": "Blue Shark",
+      "description": "Blue Shark",
+      "providers": "KMFRI",
+      "latest_update": "1998-01-01",
+      "temporal_start": "2000-01-01",
+      "temporal_end": "2000-01-01",
+      "data_collected": "2000-01-01",
+      "method_summary": "CPUE Data",
+      "known_limitations": "- Scarce\n- Time is wrong!",
+      "source_citation": "KMFRI",
+      "lineage": "Blue Shark",
+      "links": [],
+      "contact": {
+        "name": "Daina Mathai",
+        "email": "dainamathai@gmail.com",
+        "phone": "-",
+        "org": "KMFRI"
+      },
+      "map_file": "data/maps/ecosystem/blue-shark.png",
+      "values_file": "data/values/ecosystem/blue-shark.bin"
+    },
+    {
       "theme": "pressure",
       "band": 1,
       "slug": "plastic-litter",
@@ -576,6 +630,34 @@
       },
       "map_file": "data/maps/pressure/sea-level-rise.png",
       "values_file": "data/values/pressure/sea-level-rise.bin"
+    },
+    {
+      "theme": "pressure",
+      "band": 9,
+      "slug": "urbanisation",
+      "title": "Urbanisation",
+      "subtheme": "Urbanisation",
+      "description": "Urbanisation",
+      "providers": "Urbanisation",
+      "latest_update": "1998-01-01",
+      "temporal_start": "2000-01-01",
+      "temporal_end": "2000-01-01",
+      "data_collected": "2000-01-01",
+      "method_summary": "Not sure",
+      "known_limitations": "- Very old\n- Methods are unsure",
+      "source_citation": "ke_urban on World Resources Institute",
+      "lineage": "Urbanisation",
+      "links": [
+        "https://www.wri.org/data/kenya-gis-data#biodiversity"
+      ],
+      "contact": {
+        "name": "Kilian (?)",
+        "email": "kilian.burgi@slu.se",
+        "phone": "-",
+        "org": "SLU"
+      },
+      "map_file": "data/maps/pressure/urbanisation.png",
+      "values_file": "data/values/pressure/urbanisation.bin"
     }
   ]
 }
