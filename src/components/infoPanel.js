@@ -24,6 +24,7 @@ export function showInfoPanel(key) {
 
   const panel = document.getElementById('info-panel');
   const isEmpty = !layer.description && !layer.method_summary;
+  const noData = layer.data_available === false;
 
   const themeLabel =
     layer.theme === 'pressure' ? 'Pressure' : 'Ecosystem Component';
@@ -32,13 +33,23 @@ export function showInfoPanel(key) {
 
   panel.innerHTML = `
     <h3 class="panel-heading">Metadata</h3>
-    <h2>${escapeHtml(layer.title)}</h2>
+    <h2>
+      ${escapeHtml(layer.title)}
+      ${noData ? '<span class="layer-needs-data info-needs-data">Data needed</span>' : ''}
+    </h2>
     <p class="theme-line">
       <span class="theme-badge ${themeBadgeClass}">${themeLabel}</span>
       ${layer.subtheme ? `<span class="theme-sub">${escapeHtml(layer.subtheme)}</span>` : ''}
     </p>
 
-    ${isEmpty ? `
+    ${noData ? `
+      <div class="info-callout">
+        No data is attached to this layer yet — it is on the planned list.
+        If you can point us to a suitable dataset, please add a note in the
+        review form below.
+      </div>
+      ${layer.description ? `<p class="compact-description">${escapeHtml(layer.description)}</p>` : ''}
+    ` : isEmpty ? `
       <div class="info-callout">
         Metadata for this layer is not yet available.
       </div>

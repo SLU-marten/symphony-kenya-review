@@ -1,15 +1,16 @@
 # Symphony Kenya - Marine Layer Review
 
-Static review web app for the 20 marine layers (12 ecosystem components + 8 pressures) produced by the Mombasa 2026 modelling team.
+Static review web app for the marine layers tracked by the Mombasa 2026 modelling team. The current build ships the full planned checklist of 89 layers — some carry raster data already, the rest are placeholders awaiting data.
 
 **Live:** https://slu-marten.github.io/symphony-kenya-review/
 
 ## What reviewers see
 
 - A Leaflet map with the active layer rendered as a coloured raster on top of a switchable basemap (Light / Minimal / Satellite / Ocean).
-- A sidebar listing all 20 layers grouped under **Ecosystem components** and **Pressures**, with a search box and per-layer flag dots showing which layers the reviewer has already submitted feedback on.
+- A sidebar listing all layers grouped under **Ecosystem components** and **Pressures**, with a search box and per-layer flag dots showing which layers the reviewer has already submitted feedback on. Layers without raster data yet are marked with a yellow **Data needed** badge.
 - A right-hand panel with compact metadata (subtheme, providers, dates, contact) plus a "Show full metadata" modal and a per-layer review form.
 - A **cell-value tooltip**: hover (desktop) or tap (mobile) over the map to see the raw raster value (0–100) at that cell. Real nodata cells show no tooltip; "transparent zero" cells correctly report `0.0`.
+- For **Data needed** layers the map shows only the basemap plus a "no data yet" card; reviewers can still leave a note in the review form suggesting suitable data sources.
 - Mobile layout: sidebar collapses into a hamburger drawer, right panel becomes a bottom sheet you can expand.
 
 ## Quick start
@@ -22,13 +23,13 @@ python scripts/preprocess.py
 ```
 
 Reads the multiband GeoTIFFs and metadata CSV in `../Layers_260427_250m/` and writes:
-- `public/data/layers.json` — 20 layer metadata records, raster grid metadata, and bounds
-- `public/data/maps/ecosystem/*.png` — 12 coloured band PNGs (YlGn ramp)
-- `public/data/maps/pressure/*.png` — 8 coloured band PNGs (YlOrRd ramp)
-- `public/data/values/ecosystem/*.bin` — 12 UInt8 quantized value grids (for the tooltip)
-- `public/data/values/pressure/*.bin` — 8 UInt8 quantized value grids
+- `public/data/layers.json` — one record per CSV row (89 total), each with a `data_available` flag, plus the raster grid metadata and bounds
+- `public/data/maps/{ecosystem,pressure}/*.png` — one coloured band PNG per data layer (YlGn for ecosystem, YlOrRd for pressure)
+- `public/data/values/{ecosystem,pressure}/*.bin` — one UInt8 quantized value grid per data layer, for the tooltip
 
-The `.bin` files encode each cell's value as `round(value / 100 * 254)` with `255` reserved for nodata. They're written at native TIFF resolution (2541×1447 ≈ 3.6 MB per layer, ~71 MB total).
+Placeholder rows (CSV rows with an empty `band` column) appear in `layers.json` with `data_available: false`, `map_file: null`, `values_file: null` — no PNG/bin is generated for them.
+
+The `.bin` files encode each cell's value as `round(value / 100 * 254)` with `255` reserved for nodata. They're written at native TIFF resolution (2541×1447 ≈ 3.6 MB per layer).
 
 ### 2. Run the dev server
 
@@ -63,6 +64,41 @@ python scripts/preprocess.py --low-res                  # PNGs at 2x downsampled
 python scripts/preprocess.py --compress                 # invoke pngquant on PNGs
 ```
 
+## Adding or updating a layer
+
+The 89 entries from the planning checklist are already in `../Layers_260427_250m/metadata_Layers_260427_250m.csv` as either populated rows (`band` filled in → has a TIFF band, PNG, and value bin) or placeholders (`band` empty → renders as **Data needed** in the UI).
+
+The most common operation is **filling in a placeholder** as new raster data arrives.
+
+### Filling in a placeholder (raster data has arrived)
+
+1. **Drop the new TIFF(s)** into `../Layers_260427_250m/New layers/`. They can be at any resolution and slightly different bounds — `merge_new_layers.py` resamples them onto the destination grid (2541×1447, EPSG:3857) via bilinear interpolation.
+2. **Edit `scripts/merge_new_layers.py`** — point the `MERGES` list at your new file(s) and the destination stack(s) (`ecosystem_Layers_260427_250m.tif` and/or `pressure_Layers_260427_250m.tif`).
+3. **Run** `python scripts/merge_new_layers.py` — the new band(s) get appended to the matching stack with their `descriptions` preserved.
+4. **Bump `n_bands`** in `scripts/preprocess.py` to match the new band count on the affected stack(s).
+5. **Edit the CSV row** — find the placeholder whose `title` matches the new layer and set its `band` to the newly-added band index. Fill in `data_providers`, `latest_update`, `temporal_*`, `data_collected`, `method_summary`, `known_limitations`, `source_citation`, `lineage`, `links`, and the contact fields. Leave fields you don't have empty (the UI shows them as "—").
+6. **Run** `python scripts/preprocess.py` — regenerates `layers.json`, the PNG, and the value bin. (Re-renders all bands; that's harmless and gives you a clean output.)
+7. **Verify locally** with `npm run dev` — open the layer in the sidebar and confirm the badge is gone, the raster renders, and the hover tooltip reports plausible values.
+8. **Commit and deploy**:
+   ```powershell
+   git add public/data/layers.json scripts/
+   git commit -m "Add data for <layer name>"
+   git push
+   npm run deploy
+   ```
+
+### Adding a brand-new placeholder
+
+Append a row to the CSV with `theme`, `subtheme`, `title`, and `description` filled in and `band` empty. Run `python scripts/preprocess.py --json-only`, commit, push, deploy.
+
+### Editing only metadata for an existing layer
+
+Edit the CSV row. Run `python scripts/preprocess.py --json-only` (no need to re-render PNGs). Commit, push, deploy.
+
+### Removing a layer
+
+There is no helper script for this yet — do it manually with a short rasterio snippet to drop the band, then remove the matching CSV row, decrement `n_bands`, delete the matching `.png` and `.bin`, rerun `python scripts/preprocess.py`. The `.bak.tif` snapshots in `../Layers_260427_250m/` are a safety net if you need to roll back.
+
 ## Reviewer flow
 
 1. On first visit, a setup modal collects Name, Email, Area of expertise, and contact consent (saved to localStorage; reopen via "Edit reviewer info" link).
@@ -87,9 +123,10 @@ Without Sheets sync, reviews stay only in the reviewer's browser.
 ```
 symphony_kenya_review/
   scripts/preprocess.py             — CSV/TIFF preprocessor
-  public/data/layers.json           — 20 layer records + raster meta + bounds
-  public/data/maps/{theme}/*.png    — per-band PNG renders (gitignored on main)
-  public/data/values/{theme}/*.bin  — per-band UInt8 value grids (gitignored on main)
+  scripts/merge_new_layers.py       — appends new TIFF bands onto a stack (reused per data drop)
+  public/data/layers.json           — one record per CSV row + raster meta + bounds
+  public/data/maps/{theme}/*.png    — per-band PNG renders, one per data layer (gitignored on main)
+  public/data/values/{theme}/*.bin  — per-band UInt8 value grids, one per data layer (gitignored on main)
   src/                              — Vite + Vanilla JS SPA (Leaflet)
 ```
 

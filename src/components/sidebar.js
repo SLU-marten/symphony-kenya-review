@@ -72,7 +72,7 @@ function renderLayerList() {
     const key = `${layer.theme}:${layer.slug}`;
     const li = document.createElement('li');
     li.className = 'layer-item';
-    if (!layer.description && !layer.method_summary) li.classList.add('no-data');
+    if (!layer.data_available) li.classList.add('no-data');
     li.dataset.key = key;
     li.dataset.search = `${layer.title} ${layer.subtheme || ''}`.toLowerCase();
 
@@ -81,15 +81,25 @@ function renderLayerList() {
     dot.className = `flag-dot flag-${review ? review.flag : 'none'}`;
     dot.title = review ? `Reviewer: ${review.flag}` : 'Not reviewed';
 
-    const nameSpan = document.createElement('span');
-    nameSpan.className = 'layer-name';
-    nameSpan.textContent = layer.title;
+    const nameWrap = document.createElement('span');
+    nameWrap.className = 'layer-name';
+    const nameText = document.createElement('span');
+    nameText.className = 'layer-name-text';
+    nameText.textContent = layer.title;
+    nameWrap.appendChild(nameText);
+    if (!layer.data_available) {
+      const badge = document.createElement('span');
+      badge.className = 'layer-needs-data';
+      badge.textContent = 'Data needed';
+      badge.title = 'Data not yet available — suggest sources via the review form';
+      nameWrap.appendChild(badge);
+    }
 
     const subSpan = document.createElement('span');
     subSpan.className = 'layer-sub';
     subSpan.textContent = layer.subtheme || '';
 
-    li.append(dot, nameSpan, subSpan);
+    li.append(dot, nameWrap, subSpan);
     li.addEventListener('click', () => onLayerSelectCallback(key));
     list.appendChild(li);
   });

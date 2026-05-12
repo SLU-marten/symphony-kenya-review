@@ -55,7 +55,7 @@ export function getLayersByTheme(themeId) {
 }
 
 export function getMapUrl(layer) {
-  return `./${layer.map_file}`;
+  return layer.map_file ? `./${layer.map_file}` : null;
 }
 
 export function getValuesUrl(layer) {

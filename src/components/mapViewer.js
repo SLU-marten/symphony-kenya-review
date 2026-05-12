@@ -162,6 +162,7 @@ export function initMapViewer(boundsLatLng, raster) {
   applyBasemap(activeBaseId);
   buildBasemapSwitcher();
   setupValueTooltip();
+  setupDataNeededOverlay();
 
   // Reset the render-queue idle timer on every zoom event so wheel bursts
   // don't repeatedly trigger expensive tile paints between ticks.
@@ -246,6 +247,21 @@ export function showMap(mapUrl, valuesUrl, layerKey) {
     imageOverlay.remove();
     imageOverlay = null;
   }
+
+  if (!mapUrl) {
+    // Placeholder layer — no raster data exists yet. Keep the basemap and the
+    // map's geographic context; the overlay div renders a "data needed" card.
+    activeValues = null;
+    activeValuesKey = null;
+    activeColormap = null;
+    hideTooltip();
+    setDataNeededVisible(true);
+    map.fitBounds(dataBounds, { padding: FIT_PADDING });
+    return;
+  }
+
+  setDataNeededVisible(false);
+
   // PNG stays as the immediate-display fallback: it appears in ~200 ms while
   // the .bin (~3.6 MB) is fetched in parallel. Once .bin lands, the
   // ValueGridLayer is added on top and renders crisp at every zoom level.
@@ -258,6 +274,31 @@ export function showMap(mapUrl, valuesUrl, layerKey) {
   map.fitBounds(dataBounds, { padding: FIT_PADDING });
 
   loadValuesForLayer(valuesUrl, layerKey);
+}
+
+let dataNeededEl = null;
+
+function setupDataNeededOverlay() {
+  const host = document.getElementById('map-viewer');
+  if (!host) return;
+  dataNeededEl = document.createElement('div');
+  dataNeededEl.className = 'data-needed-overlay hidden';
+  dataNeededEl.innerHTML = `
+    <div class="data-needed-card">
+      <div class="data-needed-icon" aria-hidden="true">⚠</div>
+      <h3>Data not yet available</h3>
+      <p>This layer is on the planned list but has no data attached yet.
+         If you know of relevant data sources, please leave a suggestion in
+         the review form.</p>
+    </div>
+  `;
+  host.appendChild(dataNeededEl);
+}
+
+function setDataNeededVisible(visible) {
+  if (dataNeededEl) dataNeededEl.classList.toggle('hidden', !visible);
+  const legend = document.getElementById('map-legend');
+  if (legend) legend.classList.toggle('hidden', visible);
 }
 
 export function setLegend(layer) {

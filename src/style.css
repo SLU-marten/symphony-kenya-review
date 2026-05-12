@@ -220,11 +220,42 @@ body {
 }
 
 .layer-name {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
   font-size: 13px;
   font-weight: 500;
+}
+
+.layer-name-text {
+  flex: 1;
+  min-width: 0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.layer-needs-data {
+  flex-shrink: 0;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 2px 6px;
+  border-radius: 3px;
+  background: rgba(212,160,23,0.18);
+  color: var(--flag-yellow);
+  border: 1px solid rgba(212,160,23,0.35);
+  white-space: nowrap;
+}
+
+.info-needs-data {
+  display: inline-block;
+  margin-left: 8px;
+  vertical-align: middle;
+  font-size: 10px;
+  padding: 3px 8px;
 }
 
 .layer-sub {
@@ -304,6 +335,57 @@ body {
 .leaflet-image-layer.data-overlay {
   image-rendering: -webkit-optimize-contrast;
   image-rendering: crisp-edges;
+}
+
+/* "Data needed" placeholder shown for layers in the list that have no raster
+   yet — keeps the basemap visible underneath but signals there is nothing to
+   review on the map. */
+.data-needed-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1050;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  padding: 16px;
+}
+
+.data-needed-overlay.hidden {
+  display: none;
+}
+
+.data-needed-card {
+  pointer-events: auto;
+  max-width: 360px;
+  padding: 20px 24px;
+  background: rgba(255,255,255,0.97);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--flag-yellow);
+  border-radius: var(--radius);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  text-align: center;
+}
+
+.data-needed-icon {
+  font-size: 28px;
+  color: var(--flag-yellow);
+  line-height: 1;
+  margin-bottom: 8px;
+}
+
+.data-needed-card h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+}
+
+.data-needed-card p {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.5;
 }
 
 /* Cell-value tooltip — follows the cursor on desktop, anchored at the tap

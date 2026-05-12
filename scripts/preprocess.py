@@ -63,7 +63,7 @@ THEMES = {
     "pressure": {
         "tif": DATA_DIR / "pressure_Layers_260427_250m.tif",
         "cmap": "YlOrRd",
-        "n_bands": 9,
+        "n_bands": 8,
     },
 }
 
@@ -111,12 +111,12 @@ def split_links(s: str | None) -> list[str]:
     return out
 
 
-def build_layer_record(row: dict, map_relpath: str, values_relpath: str) -> dict:
+def build_layer_record(row: dict, band: int | None, map_relpath: str | None, values_relpath: str | None) -> dict:
     theme_key = (row.get("theme") or "").strip().lower()
     title = (row.get("title") or "").strip()
     return {
         "theme": theme_key,
-        "band": int(row["band"]),
+        "band": band,
         "slug": slugify(title),
         "title": title,
         "subtheme": normalize_value(row.get("subtheme")),
@@ -137,6 +137,7 @@ def build_layer_record(row: dict, map_relpath: str, values_relpath: str) -> dict
             "phone": normalize_value(row.get("contact_phone")),
             "org": normalize_value(row.get("contact_org")),
         },
+        "data_available": band is not None,
         "map_file": map_relpath,
         "values_file": values_relpath,
     }
@@ -147,17 +148,32 @@ def parse_metadata(csv_path: Path) -> list[dict]:
     with csv_path.open(newline="", encoding="utf-8-sig") as fh:
         reader = csv.DictReader(fh)
         for row in reader:
-            band_raw = (row.get("band") or "").strip()
             theme_raw = (row.get("theme") or "").strip().lower()
-            if not band_raw or theme_raw not in THEMES:
+            if theme_raw not in THEMES:
                 continue
             title = (row.get("title") or "").strip()
+            if not title:
+                continue
+            band_raw = (row.get("band") or "").strip()
             slug = slugify(title)
-            map_relpath = f"data/maps/{theme_raw}/{slug}.png"
-            values_relpath = f"data/values/{theme_raw}/{slug}.bin"
-            records.append(build_layer_record(row, map_relpath, values_relpath))
+            if band_raw:
+                band = int(band_raw)
+                map_relpath = f"data/maps/{theme_raw}/{slug}.png"
+                values_relpath = f"data/values/{theme_raw}/{slug}.bin"
+            else:
+                band = None
+                map_relpath = None
+                values_relpath = None
+            records.append(build_layer_record(row, band, map_relpath, values_relpath))
+    # Data layers first (sorted by band), then placeholders (sorted by subtheme, title)
     records.sort(
-        key=lambda r: (0 if r["theme"] == "ecosystem" else 1, r["band"])
+        key=lambda r: (
+            0 if r["theme"] == "ecosystem" else 1,
+            0 if r["band"] is not None else 1,
+            r["band"] if r["band"] is not None else 0,
+            r.get("subtheme") or "",
+            r["title"],
+        )
     )
     return records
 
@@ -310,7 +326,7 @@ def render_theme(
     cmap_name = cfg["cmap"]
     flags = ", ".join(filter(None, ["pngs" if do_pngs else None, "values" if do_values else None]))
     print(f"  rendering theme={theme_key} from {tif.name} (cmap={cmap_name}, downsample={downsample}, {flags})")
-    theme_records = [r for r in records if r["theme"] == theme_key]
+    theme_records = [r for r in records if r["theme"] == theme_key and r["band"] is not None]
     for rec in theme_records:
         if only_band is not None and rec["band"] != only_band:
             continue
@@ -354,7 +370,11 @@ def main() -> int:
 
     print(f"Reading metadata: {CSV_PATH}")
     records = parse_metadata(CSV_PATH)
-    print(f"  parsed {len(records)} rows ({sum(1 for r in records if r['theme']=='ecosystem')} ecosystem + {sum(1 for r in records if r['theme']=='pressure')} pressure)")
+    n_eco = sum(1 for r in records if r['theme']=='ecosystem')
+    n_pres = sum(1 for r in records if r['theme']=='pressure')
+    n_data = sum(1 for r in records if r['data_available'])
+    n_placeholder = len(records) - n_data
+    print(f"  parsed {len(records)} rows ({n_eco} ecosystem + {n_pres} pressure; {n_data} with data, {n_placeholder} placeholders)")
 
     if do_json:
         print("Computing lat/lon bounds and dimensions from reference TIFF...")
