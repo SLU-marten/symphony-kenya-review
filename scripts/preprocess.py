@@ -58,7 +58,7 @@ THEMES = {
     "ecosystem": {
         "tif": DATA_DIR / "ecosystem_Layers_260427_250m.tif",
         "cmap": "YlGn",
-        "n_bands": 14,
+        "n_bands": 22,
     },
     "pressure": {
         "tif": DATA_DIR / "pressure_Layers_260427_250m.tif",
@@ -165,14 +165,11 @@ def parse_metadata(csv_path: Path) -> list[dict]:
                 map_relpath = None
                 values_relpath = None
             records.append(build_layer_record(row, band, map_relpath, values_relpath))
-    # Data layers first (sorted by band), then placeholders (sorted by subtheme, title)
+    # Alphabetical by title within each theme (ecosystem first, then pressure).
     records.sort(
         key=lambda r: (
             0 if r["theme"] == "ecosystem" else 1,
-            0 if r["band"] is not None else 1,
-            r["band"] if r["band"] is not None else 0,
-            r.get("subtheme") or "",
-            r["title"],
+            r["title"].lower(),
         )
     )
     return records

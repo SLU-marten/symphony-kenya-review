@@ -35,11 +35,7 @@ NEW_DIR = DATA_DIR / "New layers"
 MERGES = [
     {
         "dest": DATA_DIR / "ecosystem_Layers_260427_250m.tif",
-        "new":  NEW_DIR / "ecosystem_Marten_Layers.tif",
-    },
-    {
-        "dest": DATA_DIR / "pressure_Layers_260427_250m.tif",
-        "new":  NEW_DIR / "pressure_Marten_Layers.tif",
+        "new":  NEW_DIR / "ecosystem_Kilian_Test_Layers.tif",
     },
 ]
 
