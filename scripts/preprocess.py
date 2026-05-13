@@ -2,27 +2,26 @@
 Preprocess the Mombasa 2026 multiband GeoTIFFs + metadata CSV into the
 shape consumed by the Symphony Kenya review web app:
 
-  public/data/layers.json                   ({ bounds, raster, layers: [...] })
-  public/data/maps/ecosystem/<slug>.png     (12 PNGs, YlGn ramp)
-  public/data/maps/pressure/<slug>.png     ( 8 PNGs, YlOrRd ramp)
-  public/data/values/ecosystem/<slug>.bin   (12 UInt8 raster value arrays)
-  public/data/values/pressure/<slug>.bin    ( 8 UInt8 raster value arrays)
+  public/data/layers.json                       ({ bounds, raster, layers })
+  public/data/maps/{theme}/<slug>.webp          (lossless, one per data layer)
+  public/data/values/{theme}/<slug>.bin.gz      (UInt8 quantized, gzipped)
 
 Value bins are quantized 0..254 over the [0, 100] range with 255 as the
 nodata sentinel. Always written at the TIFF's native resolution so the
-hover/tap tooltip in the web app sees the un-resampled source value.
+hover/tap tooltip in the web app sees the un-resampled source value. The
+raw UInt8 stream is gzipped (~30x smaller, since most cells are 0 or 255)
+and decompressed in the browser via DecompressionStream.
 """
 from __future__ import annotations
 
 import argparse
 import csv
 import gc
+import gzip
 import importlib.util
 import json
 import os
 import re
-import shutil
-import subprocess
 import sys
 from pathlib import Path
 
@@ -158,8 +157,8 @@ def parse_metadata(csv_path: Path) -> list[dict]:
             slug = slugify(title)
             if band_raw:
                 band = int(band_raw)
-                map_relpath = f"data/maps/{theme_raw}/{slug}.png"
-                values_relpath = f"data/values/{theme_raw}/{slug}.bin"
+                map_relpath = f"data/maps/{theme_raw}/{slug}.webp"
+                values_relpath = f"data/values/{theme_raw}/{slug}.bin.gz"
             else:
                 band = None
                 map_relpath = None
@@ -214,7 +213,11 @@ def render_band(
         img = img.resize(new_size, Image.LANCZOS)
 
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    img.save(out_path, "PNG", optimize=True)
+    # Lossless WebP with method=6 (slow encode, smallest output). The maps are
+    # transparent-background gradients over nodata — compresses very efficiently
+    # losslessly. Keeps the underlay sharp at high zoom levels in the brief
+    # window before the canvas tile layer takes over.
+    img.save(out_path, "WEBP", lossless=True, method=6)
 
     del arr, norm, rgba_float, rgba, img
     gc.collect()
@@ -226,11 +229,16 @@ def render_band_values(
     out_path: Path,
     value_range: tuple[float, float] = VALUE_RANGE,
 ) -> tuple[int, int]:
-    """Write a UInt8-quantized binary of cell values at native TIFF resolution.
+    """Write a gzipped UInt8-quantized binary of cell values at native TIFF resolution.
 
     Encoding: value in [lo, hi] → round((value-lo)/(hi-lo) * 254), clipped.
     NaN or explicit nodata → VALUES_NODATA (255). Zero is preserved as a real
-    value (unlike the PNG, which renders zero as transparent).
+    value (unlike the WebP, which renders zero as transparent).
+
+    The raw stream is gzipped (compresslevel=9) because most cells are 0 or
+    nodata — typical compression ratios are 10–100x, giving a payload around
+    30–300 KB instead of the raw 3.6 MB. Decompressed client-side via
+    DecompressionStream('gzip').
 
     Returns (width, height) so callers can record the grid dimensions.
     """
@@ -249,30 +257,12 @@ def render_band_values(
 
     h, w = quantized.shape
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    quantized.tofile(out_path)
+    with gzip.open(out_path, "wb", compresslevel=9) as fh:
+        fh.write(quantized.tobytes())
 
     del arr, clipped, quantized
     gc.collect()
     return (int(w), int(h))
-
-
-def maybe_pngquant(out_path: Path) -> None:
-    if not shutil.which("pngquant"):
-        print(f"    [warn] pngquant not found on PATH; skipping compression for {out_path.name}")
-        return
-    subprocess.run(
-        [
-            "pngquant",
-            "--quality=70-90",
-            "--speed",
-            "1",
-            "--force",
-            "--output",
-            str(out_path),
-            str(out_path),
-        ],
-        check=False,
-    )
 
 
 def write_json(payload: dict, out_path: Path) -> None:
@@ -313,28 +303,26 @@ def render_theme(
     theme_key: str,
     records: list[dict],
     downsample: int,
-    compress: bool,
     only_band: int | None,
-    do_pngs: bool,
+    do_maps: bool,
     do_values: bool,
 ) -> None:
     cfg = THEMES[theme_key]
     tif = cfg["tif"]
     cmap_name = cfg["cmap"]
-    flags = ", ".join(filter(None, ["pngs" if do_pngs else None, "values" if do_values else None]))
+    flags = ", ".join(filter(None, ["maps" if do_maps else None, "values" if do_values else None]))
     print(f"  rendering theme={theme_key} from {tif.name} (cmap={cmap_name}, downsample={downsample}, {flags})")
     theme_records = [r for r in records if r["theme"] == theme_key and r["band"] is not None]
     for rec in theme_records:
         if only_band is not None and rec["band"] != only_band:
             continue
-        if do_pngs:
-            out_path = MAPS_DIR / theme_key / f"{rec['slug']}.png"
-            print(f"    band {rec['band']:>2} png -> {out_path.relative_to(PROJECT_ROOT)}")
+        if do_maps:
+            out_path = MAPS_DIR / theme_key / f"{rec['slug']}.webp"
             render_band(tif, rec["band"], out_path, cmap_name, downsample=downsample)
-            if compress:
-                maybe_pngquant(out_path)
+            size_kb = out_path.stat().st_size / 1024
+            print(f"    band {rec['band']:>2} webp -> {out_path.relative_to(PROJECT_ROOT)} ({size_kb:.0f} KB)")
         if do_values:
-            bin_path = VALUES_DIR / theme_key / f"{rec['slug']}.bin"
+            bin_path = VALUES_DIR / theme_key / f"{rec['slug']}.bin.gz"
             w, h = render_band_values(tif, rec["band"], bin_path)
             size_kb = bin_path.stat().st_size / 1024
             print(f"    band {rec['band']:>2} bin -> {bin_path.relative_to(PROJECT_ROOT)} ({w}x{h}, {size_kb:.0f} KB)")
@@ -345,12 +333,11 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--theme", choices=list(THEMES.keys()), help="Restrict to one theme")
     p.add_argument("--band", type=int, help="Restrict to one band index (1-based)")
     p.add_argument("--json-only", action="store_true", help="Only rebuild layers.json")
-    p.add_argument("--maps-only", action="store_true", help="Only rebuild PNGs and value bins (no JSON)")
-    p.add_argument("--values-only", action="store_true", help="Only rebuild value bins (no JSON, no PNGs)")
+    p.add_argument("--maps-only", action="store_true", help="Only rebuild WebPs and value bins (no JSON)")
+    p.add_argument("--values-only", action="store_true", help="Only rebuild value bins (no JSON, no WebPs)")
     p.add_argument("--skip-values", action="store_true", help="Skip value bin generation")
-    p.add_argument("--low-res", action="store_true", help="Render PNGs at 2x downsampled (1270x723); default is native 2541x1447. Value bins are always native.")
+    p.add_argument("--low-res", action="store_true", help="Render WebPs at 2x downsampled (1270x723); default is native 2541x1447. Value bins are always native.")
     p.add_argument("--full-res", action="store_true", help="Deprecated alias; native is now the default")
-    p.add_argument("--compress", action="store_true", help="Run pngquant on each band PNG (if installed)")
     return p.parse_args()
 
 
@@ -358,7 +345,7 @@ def main() -> int:
     args = parse_args()
 
     do_json = not args.maps_only and not args.values_only
-    do_pngs = not args.json_only and not args.values_only
+    do_maps = not args.json_only and not args.values_only
     do_values = not args.json_only and not args.skip_values
 
     if not CSV_PATH.exists():
@@ -397,15 +384,15 @@ def main() -> int:
 
     downsample = 2 if args.low_res else 1
 
-    if do_pngs or do_values:
+    if do_maps or do_values:
         themes_to_run = [args.theme] if args.theme else list(THEMES.keys())
         for theme_key in themes_to_run:
             if not THEMES[theme_key]["tif"].exists():
                 print(f"  [skip] {theme_key}: TIFF not found at {THEMES[theme_key]['tif']}")
                 continue
             render_theme(
-                theme_key, records, downsample, args.compress, args.band,
-                do_pngs=do_pngs, do_values=do_values,
+                theme_key, records, downsample, args.band,
+                do_maps=do_maps, do_values=do_values,
             )
 
     print("Done.")

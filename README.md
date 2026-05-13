@@ -23,13 +23,13 @@ python scripts/preprocess.py
 ```
 
 Reads the multiband GeoTIFFs and metadata CSV in `../Layers_260427_250m/` and writes:
-- `public/data/layers.json` — one record per CSV row (89 total), each with a `data_available` flag, plus the raster grid metadata and bounds
-- `public/data/maps/{ecosystem,pressure}/*.png` — one coloured band PNG per data layer (YlGn for ecosystem, YlOrRd for pressure)
-- `public/data/values/{ecosystem,pressure}/*.bin` — one UInt8 quantized value grid per data layer, for the tooltip
+- `public/data/layers.json` — one record per CSV row, each with a `data_available` flag, plus the raster grid metadata and bounds
+- `public/data/maps/{ecosystem,pressure}/*.webp` — lossless WebP per data layer (YlGn ramp for ecosystem, YlOrRd for pressure)
+- `public/data/values/{ecosystem,pressure}/*.bin.gz` — gzipped UInt8 quantized value grid per data layer, used by the hover tooltip and canvas-tile renderer
 
-Placeholder rows (CSV rows with an empty `band` column) appear in `layers.json` with `data_available: false`, `map_file: null`, `values_file: null` — no PNG/bin is generated for them.
+Placeholder rows (CSV rows with an empty `band` column) appear in `layers.json` with `data_available: false`, `map_file: null`, `values_file: null` — no WebP/bin.gz is generated for them.
 
-The `.bin` files encode each cell's value as `round(value / 100 * 254)` with `255` reserved for nodata. They're written at native TIFF resolution (2541×1447 ≈ 3.6 MB per layer).
+The decompressed value bins encode each cell as `round(value / 100 * 254)` with `255` reserved for nodata, at native TIFF resolution (2541×1447 = ~3.6 MB raw). Gzipping typically yields a 10–100× smaller payload (most cells are 0 or nodata), so the average over-the-wire size is around 130 KB — important on slow mobile connections. The browser stream-decompresses via `DecompressionStream('gzip')`.
 
 ### 2. Run the dev server
 
@@ -53,15 +53,14 @@ npm run deploy      # pushes dist/ to gh-pages branch
 ## Preprocess CLI
 
 ```bash
-python scripts/preprocess.py                            # full run: JSON + PNGs + value bins
+python scripts/preprocess.py                            # full run: JSON + WebPs + value bins
 python scripts/preprocess.py --json-only                # rebuild layers.json only
-python scripts/preprocess.py --maps-only                # rebuild PNGs + value bins (no JSON)
+python scripts/preprocess.py --maps-only                # rebuild WebPs + value bins (no JSON)
 python scripts/preprocess.py --values-only              # rebuild value bins only
-python scripts/preprocess.py --skip-values              # render PNGs but skip value bins
+python scripts/preprocess.py --skip-values              # render WebPs but skip value bins
 python scripts/preprocess.py --theme ecosystem          # restrict to one theme
 python scripts/preprocess.py --theme pressure --band 1  # single band
-python scripts/preprocess.py --low-res                  # PNGs at 2x downsampled (~3 MB total); bins always native
-python scripts/preprocess.py --compress                 # invoke pngquant on PNGs
+python scripts/preprocess.py --low-res                  # WebPs at 2x downsampled; bins always native
 ```
 
 ## Adding or updating a layer
@@ -77,7 +76,7 @@ The most common operation is **filling in a placeholder** as new raster data arr
 3. **Run** `python scripts/merge_new_layers.py` — the new band(s) get appended to the matching stack with their `descriptions` preserved.
 4. **Bump `n_bands`** in `scripts/preprocess.py` to match the new band count on the affected stack(s).
 5. **Edit the CSV row** — find the placeholder whose `title` matches the new layer and set its `band` to the newly-added band index. Fill in `data_providers`, `latest_update`, `temporal_*`, `data_collected`, `method_summary`, `known_limitations`, `source_citation`, `lineage`, `links`, and the contact fields. Leave fields you don't have empty (the UI shows them as "—").
-6. **Run** `python scripts/preprocess.py` — regenerates `layers.json`, the PNG, and the value bin. (Re-renders all bands; that's harmless and gives you a clean output.)
+6. **Run** `python scripts/preprocess.py` — regenerates `layers.json`, the WebP, and the gzipped value bin. (Re-renders all bands; that's harmless and gives you a clean output.)
 7. **Verify locally** with `npm run dev` — open the layer in the sidebar and confirm the badge is gone, the raster renders, and the hover tooltip reports plausible values.
 8. **Commit and deploy**:
    ```powershell
@@ -97,7 +96,7 @@ Edit the CSV row. Run `python scripts/preprocess.py --json-only` (no need to re-
 
 ### Removing a layer
 
-There is no helper script for this yet — do it manually with a short rasterio snippet to drop the band, then remove the matching CSV row, decrement `n_bands`, delete the matching `.png` and `.bin`, rerun `python scripts/preprocess.py`. The `.bak.tif` snapshots in `../Layers_260427_250m/` are a safety net if you need to roll back.
+There is no helper script for this yet — do it manually with a short rasterio snippet to drop the band, then remove the matching CSV row, decrement `n_bands`, delete the matching `.webp` and `.bin.gz`, rerun `python scripts/preprocess.py`. The `.bak.tif` snapshots in `../Layers_260427_250m/` are a safety net if you need to roll back.
 
 ## Reviewer flow
 
@@ -124,9 +123,9 @@ Without Sheets sync, reviews stay only in the reviewer's browser.
 symphony_kenya_review/
   scripts/preprocess.py             — CSV/TIFF preprocessor
   scripts/merge_new_layers.py       — appends new TIFF bands onto a stack (reused per data drop)
-  public/data/layers.json           — one record per CSV row + raster meta + bounds
-  public/data/maps/{theme}/*.png    — per-band PNG renders, one per data layer (gitignored on main)
-  public/data/values/{theme}/*.bin  — per-band UInt8 value grids, one per data layer (gitignored on main)
+  public/data/layers.json              — one record per CSV row + raster meta + bounds
+  public/data/maps/{theme}/*.webp      — per-band lossless WebP, one per data layer (gitignored on main)
+  public/data/values/{theme}/*.bin.gz  — per-band gzipped UInt8 value grids, one per data layer (gitignored on main)
   src/                              — Vite + Vanilla JS SPA (Leaflet)
 ```
 

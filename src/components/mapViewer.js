@@ -237,7 +237,7 @@ export function showMap(mapUrl, valuesUrl, layerKey) {
   map.invalidateSize();
 
   // Drop the previous layer's grid first so a stale colour render doesn't sit
-  // on top while the new PNG/.bin loads.
+  // on top while the new WebP/.bin.gz loads.
   if (valueGridLayer) {
     valueGridLayer.remove();
     valueGridLayer = null;
@@ -262,8 +262,9 @@ export function showMap(mapUrl, valuesUrl, layerKey) {
 
   setDataNeededVisible(false);
 
-  // PNG stays as the immediate-display fallback: it appears in ~200 ms while
-  // the .bin (~3.6 MB) is fetched in parallel. Once .bin lands, the
+  // WebP stays as the immediate-display fallback: it appears in ~100-200 ms
+  // while the .bin.gz (typically 30-300 KB, decoded to 3.6 MB Uint8) is
+  // fetched and stream-decompressed in parallel. Once the bin lands, the
   // ValueGridLayer is added on top and renders crisp at every zoom level.
   imageOverlay = L.imageOverlay(mapUrl, dataBounds, {
     opacity: 1,
@@ -417,7 +418,20 @@ async function loadValuesForLayer(valuesUrl, layerKey) {
     const response = await fetch(valuesUrl);
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     const buffer = await response.arrayBuffer();
-    const data = new Uint8Array(buffer);
+    let data = new Uint8Array(buffer);
+    // Most static servers (Vite, GitHub Pages, NGINX) send `.gz` files with
+    // `Content-Encoding: gzip`, in which case the browser already
+    // transparently decompressed the body, and `data` is the full UInt8 raster.
+    // If the payload size doesn't match the expected raster grid AND the
+    // gzip magic bytes (1F 8B) are present, the server didn't auto-decompress
+    // and we have to do it manually via DecompressionStream.
+    const expected = rasterMeta ? rasterMeta.width * rasterMeta.height : 0;
+    if (data.length !== expected && data.length >= 2 && data[0] === 0x1f && data[1] === 0x8b) {
+      const decompressedStream = new Response(data).body.pipeThrough(
+        new DecompressionStream('gzip')
+      );
+      data = new Uint8Array(await new Response(decompressedStream).arrayBuffer());
+    }
     valuesCache.set(layerKey, data);
     if (activeValuesKey === layerKey) {
       activeValues = { key: layerKey, data };
