@@ -57,7 +57,7 @@ THEMES = {
     "ecosystem": {
         "tif": DATA_DIR / "ecosystem_Layers_260427_250m.tif",
         "cmap": "YlGn",
-        "n_bands": 22,
+        "n_bands": 23,
     },
     "pressure": {
         "tif": DATA_DIR / "pressure_Layers_260427_250m.tif",
