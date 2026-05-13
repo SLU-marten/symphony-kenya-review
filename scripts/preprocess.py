@@ -253,6 +253,13 @@ def render_band_values(
     span = max(hi - lo, 1e-9)
     clipped = np.clip(arr, lo, hi)
     quantized = np.rint((clipped - lo) / span * VALUES_QUANT_MAX).astype(np.uint8)
+    # Reserve raw=0 for "exact zero or less" so the canvas-tile renderer
+    # (which treats raw=0 as transparent) only hides cells that truly are
+    # zero. Any positive source value — even one that would otherwise round
+    # to 0 — is bumped to raw=1 so it renders with the lightest LUT colour
+    # and stays visually consistent with the WebP underlay.
+    positive = (~invalid) & (arr > 0)
+    quantized[positive] = np.maximum(quantized[positive], 1)
     quantized[invalid] = VALUES_NODATA
 
     h, w = quantized.shape

@@ -373,6 +373,14 @@ function lookupValue(latlng) {
   if (raw === nodata) return null;
 
   const span = value_max - value_min;
+  if (raw === 0) return value_min;
+  // raw=1 catches an "expanded" bucket because render_band_values forces any
+  // positive source value (even those that would round to 0) to raw>=1, so
+  // that exact zero stays distinct. The bucket spans (value_min, value_min +
+  // 1.5/quant_max * span] — report its midpoint (0.75/quant_max * span)
+  // instead of the standard formula, which would give the upper edge.
+  if (raw === 1) return value_min + (0.75 / quant_max) * span;
+  // Normal bucket: raw=k → midpoint of ((k-0.5)/qm, (k+0.5)/qm] * span
   return value_min + (raw / quant_max) * span;
 }
 
